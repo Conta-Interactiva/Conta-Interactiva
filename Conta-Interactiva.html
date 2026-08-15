@@ -1,0 +1,1220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ContaLab · Fundamentos de Contabilidad</title>
+<style>
+:root{
+  --az9:#0a2e4d; --az7:#12497a; --az5:#1b6ca8; --az1:#e4eef7; --az0:#f2f7fb;
+  --ve7:#0d6b45; --ve5:#17995c; --ve1:#e2f4ea;
+  --oro:#c9a01f; --oro2:#8f6f0e; --oros:#f7efd7;
+  --g9:#243140; --g7:#42536a; --g5:#7b8a9b; --g3:#c9d4de; --g1:#eef2f6;
+  --rojo:#c0392b; --rojo1:#fdecea;
+  --disp:'Palatino Linotype','Book Antiqua',Palatino,Georgia,'Times New Roman',serif;
+  --body:'Segoe UI','Trebuchet MS',system-ui,-apple-system,sans-serif;
+  --mono:Consolas,'Courier New',monospace;
+  --r:14px; --sh:0 10px 26px rgba(16,44,74,.10);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--body);color:var(--g9);background:var(--g1);min-height:100vh;overflow-x:hidden}
+#bgdeco{position:fixed;inset:0;z-index:-1;pointer-events:none;
+ background:
+  radial-gradient(700px 420px at 8% -5%, rgba(27,108,168,.16), transparent 60%),
+  radial-gradient(640px 420px at 96% 8%, rgba(23,153,92,.14), transparent 60%),
+  radial-gradient(560px 480px at 85% 96%, rgba(201,160,31,.10), transparent 60%),
+  repeating-linear-gradient(0deg, transparent 0 30px, rgba(18,73,122,.045) 30px 31px),
+  linear-gradient(#f4f7fa,#eef2f6);}
+#bgdeco .sym{position:absolute;font-family:var(--disp);color:rgba(18,73,122,.06);font-weight:700;animation:float 12s ease-in-out infinite}
+#bgdeco .s1{font-size:220px;top:12%;left:-40px}
+#bgdeco .s2{font-size:180px;bottom:6%;right:-20px;animation-delay:-6s;color:rgba(23,153,92,.06)}
+@keyframes float{0%,100%{transform:translateY(0) rotate(-4deg)}50%{transform:translateY(-22px) rotate(3deg)}}
+.num,.money,input[type=number]{font-variant-numeric:tabular-nums}
+h1,h2,h3,.disp{font-family:var(--disp)}
+button{font-family:inherit;cursor:pointer}
+input,select{font-family:inherit;font-size:1rem}
+
+/* ===== TOPBAR ===== */
+#topbar{position:sticky;top:0;z-index:50;background:linear-gradient(135deg,var(--az9),var(--az7));color:#fff;border-bottom:4px double var(--oro);box-shadow:0 6px 18px rgba(10,46,77,.28)}
+.tb-in{max-width:1240px;margin:auto;display:flex;align-items:center;gap:14px;padding:10px 16px;flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:10px;cursor:pointer}
+.logo .sig{width:42px;height:42px;border-radius:10px;background:linear-gradient(145deg,#e5c04a,var(--oro));color:var(--az9);display:grid;place-items:center;font-family:var(--disp);font-size:26px;font-weight:800;box-shadow:0 3px 0 var(--oro2)}
+.logo b{font-family:var(--disp);font-size:1.35rem;letter-spacing:.5px}
+.logo small{display:block;font-size:.68rem;color:#bcd6ea;letter-spacing:2px;text-transform:uppercase}
+.tb-stats{margin-left:auto;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tchip{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);border-radius:999px;padding:5px 12px;font-size:.8rem;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.tchip b{color:#ffd95e}
+.xpwrap{min-width:150px}
+.xpbar{height:7px;background:rgba(255,255,255,.18);border-radius:99px;overflow:hidden;margin-top:3px}
+.xpbar i{display:block;height:100%;background:linear-gradient(90deg,#ffd95e,var(--oro));width:0%;transition:width .7s cubic-bezier(.2,.8,.3,1)}
+.btn-resetall{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;padding:6px 10px;font-size:.75rem;transition:.2s}
+.btn-resetall:hover{background:#c0392b;border-color:#c0392b;transform:translateY(-1px)}
+
+/* ===== LAYOUT ===== */
+#app{max-width:1240px;margin:auto;padding:26px 16px 120px}
+.view{display:none;animation:vin .45s ease}
+.view.active{display:block}
+@keyframes vin{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.vhead{margin-bottom:22px}
+.kicker{display:inline-block;font-size:.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--ve7);background:var(--ve1);border:1px solid #bfe5cf;padding:4px 12px;border-radius:999px;font-weight:700}
+.vhead h2{font-size:clamp(1.7rem,4vw,2.5rem);color:var(--az9);margin:10px 0 6px;border-bottom:3px double var(--g3);display:inline-block;padding-bottom:6px}
+.vhead p{color:var(--g7);max-width:820px;line-height:1.55}
+.card{background:#fff;border:1px solid var(--g3);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
+.card h3{color:var(--az7);font-size:1.25rem;margin-bottom:10px}
+
+/* ===== BUTTONS ===== */
+.btn{border:none;border-radius:10px;padding:11px 18px;font-size:.95rem;font-weight:700;transition:.18s;display:inline-flex;align-items:center;gap:8px}
+.btn:active{transform:translateY(2px)}
+.btn-verde{background:linear-gradient(160deg,#1cab68,var(--ve7));color:#fff;box-shadow:0 4px 0 #0a5637}
+.btn-verde:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-azul{background:linear-gradient(160deg,#2580c4,var(--az7));color:#fff;box-shadow:0 4px 0 #0c3a61}
+.btn-azul:hover{filter:brightness(1.08);transform:translateY(-1px)}
+.btn-oro{background:linear-gradient(160deg,#e2be46,var(--oro));color:var(--az9);box-shadow:0 4px 0 var(--oro2)}
+.btn-oro:hover{filter:brightness(1.06)}
+.btn-ghost{background:#fff;border:2px solid var(--g3);color:var(--g7)}
+.btn-ghost:hover{border-color:var(--az5);color:var(--az7)}
+.btn-rojo{background:#fff;border:2px solid #e8b4ad;color:var(--rojo)}
+.btn-rojo:hover{background:var(--rojo1)}
+.btn.sm{padding:7px 12px;font-size:.82rem;border-radius:8px}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none}
+
+/* ===== HOME ===== */
+.eqboard{background:linear-gradient(135deg,var(--az9) 0%,var(--az7) 55%,#0f5a3f 130%);color:#fff;border-radius:18px;padding:26px 24px 22px;box-shadow:0 16px 40px rgba(10,46,77,.30);position:relative;overflow:hidden;border-bottom:5px solid var(--oro)}
+.eqboard::after{content:'⚖';position:absolute;font-size:170px;right:-18px;bottom:-46px;opacity:.10;transform:rotate(-10deg)}
+.eqfolio{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:.72rem;letter-spacing:2px;text-transform:uppercase;color:#a9c8e0;border-bottom:1px solid rgba(255,255,255,.25);padding-bottom:8px;margin-bottom:16px}
+.eqboard h1{font-size:clamp(1.6rem,4.5vw,2.7rem);line-height:1.1;margin-bottom:6px}
+.eqboard h1 em{color:#ffd95e;font-style:normal}
+.eqboard .sub{color:#cfe3f2;max-width:720px;line-height:1.55;font-size:.98rem}
+.eqline{display:flex;align-items:stretch;gap:10px;flex-wrap:wrap;margin-top:20px}
+.eqbox{flex:1;min-width:150px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:12px 14px;text-align:center;transition:.25s}
+.eqbox:hover{background:rgba(255,255,255,.16);transform:translateY(-3px)}
+.eqbox small{display:block;font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:#a9c8e0;margin-bottom:4px}
+.eqbox b{font-size:clamp(1.15rem,2.6vw,1.7rem);font-family:var(--mono)}
+.eqbox.verde b{color:#7ce3ae}.eqbox.azul b{color:#8ecdf7}.eqbox.oro b{color:#ffd95e}
+.eqsign{align-self:center;font-size:1.7rem;color:#ffd95e;font-family:var(--disp)}
+.eqok{margin-top:12px;display:inline-flex;gap:8px;align-items:center;background:rgba(23,153,92,.28);border:1px solid rgba(124,227,174,.5);padding:6px 14px;border-radius:999px;font-size:.82rem}
+.overall{display:flex;align-items:center;gap:14px;margin:22px 0;flex-wrap:wrap}
+.obar{flex:1;min-width:220px;height:14px;background:#fff;border:1px solid var(--g3);border-radius:99px;overflow:hidden}
+.obar i{display:block;height:100%;width:0%;background:repeating-linear-gradient(45deg,var(--ve5) 0 12px,#1cab68 12px 24px);transition:width 1s ease}
+.badgestrip{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 26px}
+.bdchip{display:flex;gap:8px;align-items:center;background:#fff;border:1px solid var(--g3);border-radius:12px;padding:8px 12px;font-size:.8rem;transition:.2s}
+.bdchip .ic{font-size:1.3rem}
+.bdchip.owned{border-color:var(--oro);background:var(--oros);box-shadow:0 3px 10px rgba(201,160,31,.22)}
+.bdchip.locked{opacity:.55;filter:grayscale(1)}
+.mgroup{margin-bottom:26px}
+.mgroup>h3{font-size:.8rem;letter-spacing:3px;text-transform:uppercase;color:var(--g5);border-bottom:2px solid var(--g3);padding-bottom:6px;margin-bottom:12px}
+.mrow{display:grid;grid-template-columns:52px 52px 1fr auto auto;gap:14px;align-items:center;background:#fff;border:1px solid var(--g3);border-left:6px solid var(--az5);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:.2s;box-shadow:0 2px 6px rgba(16,44,74,.05)}
+.mrow:hover{transform:translateX(6px);box-shadow:var(--sh);border-left-color:var(--oro)}
+.mrow.done{border-left-color:var(--ve5)}
+.mnum{font-family:var(--disp);font-size:1.5rem;color:var(--g3);font-weight:800}
+.mico{font-size:1.7rem;width:48px;height:48px;background:var(--az0);border-radius:10px;display:grid;place-items:center}
+.mrow.done .mico{background:var(--ve1)}
+.minfo h4{font-size:1.05rem;color:var(--az9)}
+.minfo p{font-size:.83rem;color:var(--g7);margin-top:2px}
+.mstats{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+.tag{font-size:.72rem;border-radius:999px;padding:4px 10px;border:1px solid var(--g3);color:var(--g7);background:var(--g1);white-space:nowrap}
+.tag.gold{background:var(--oros);border-color:var(--oro);color:var(--oro2);font-weight:700}
+.tag.green{background:var(--ve1);border-color:#bfe5cf;color:var(--ve7);font-weight:700}
+.stars{color:var(--oro);letter-spacing:2px;font-size:.95rem}
+.stars .off{color:var(--g3)}
+.mgo{font-weight:700;color:var(--az5);white-space:nowrap}
+@media(max-width:760px){.mrow{grid-template-columns:40px 1fr;grid-auto-rows:auto}.mnum{display:none}.mico{grid-row:span 2}.mstats{justify-content:flex-start}}
+
+/* ===== TOOLBAR ===== */
+#toolbar{position:fixed;left:0;right:0;bottom:0;z-index:40;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-top:2px solid var(--g3);box-shadow:0 -8px 24px rgba(16,44,74,.10)}
+body[data-view="home"] #toolbar{display:none}
+.tb2{max-width:1240px;margin:auto;display:flex;align-items:center;gap:10px;padding:10px 16px;flex-wrap:wrap}
+#tbTitle{font-weight:700;color:var(--az7);font-size:.85rem;margin-right:auto;max-width:38%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media(max-width:680px){#tbTitle{display:none}.tb2 .btn{padding:9px 12px;font-size:.8rem}}
+
+/* ===== FEEDBACK / TOAST / MODAL ===== */
+.fb{border-radius:12px;padding:14px 16px;margin-top:14px;line-height:1.5;display:none;animation:vin .3s}
+.fb.show{display:block}
+.fb.ok{background:var(--ve1);border:1px solid #9fd8b8;color:#0b5a3a}
+.fb.bad{background:var(--rojo1);border:1px solid #efb3aa;color:#8c2318}
+.fb.info{background:var(--az1);border:1px solid #b9d6ec;color:var(--az7)}
+#toasts{position:fixed;bottom:84px;right:16px;z-index:90;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--az9);color:#fff;border-left:5px solid var(--ve5);border-radius:10px;padding:11px 16px;font-size:.88rem;box-shadow:0 10px 24px rgba(10,46,77,.35);animation:tin .35s ease;max-width:320px}
+.toast.gold{border-left-color:var(--oro);background:linear-gradient(135deg,#3a2f07,#5b4a0d)}
+.toast.red{border-left-color:#e05c4a}
+@keyframes tin{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:none}}
+#modalWrap{position:fixed;inset:0;background:rgba(10,30,50,.55);z-index:100;display:none;place-items:center;padding:16px}
+#modalWrap.show{display:grid}
+#modalCard{background:#fff;border-radius:18px;max-width:460px;width:100%;padding:30px 26px;text-align:center;box-shadow:0 24px 60px rgba(0,0,0,.35);animation:pop .35s cubic-bezier(.2,1.4,.4,1);border-top:6px solid var(--oro);position:relative;overflow:hidden}
+@keyframes pop{from{transform:scale(.7);opacity:0}to{transform:scale(1);opacity:1}}
+#modalCard .big{font-size:3.4rem;animation:bounce 1s infinite alternate}
+@keyframes bounce{from{transform:translateY(0)}to{transform:translateY(-8px)}}
+#modalCard h3{color:var(--az9);font-size:1.5rem;margin:10px 0 6px}
+#modalCard p{color:var(--g7);line-height:1.5}
+.spark{position:absolute;top:-8px;font-size:1rem;animation:fall 2.4s linear infinite;opacity:.9}
+@keyframes fall{to{transform:translateY(360px) rotate(340deg);opacity:0}}
+
+/* ===== APRENDE ===== */
+.ap-grid{display:grid;grid-template-columns:300px 1fr;gap:18px}
+@media(max-width:860px){.ap-grid{grid-template-columns:1fr}}
+#topicList{display:flex;flex-direction:column;gap:6px}
+.titem{text-align:left;background:#fff;border:1px solid var(--g3);border-radius:10px;padding:10px 12px;font-size:.88rem;color:var(--g7);display:flex;gap:8px;align-items:center;transition:.15s}
+.titem:hover{border-color:var(--az5);transform:translateX(3px)}
+.titem.on{background:var(--az7);color:#fff;border-color:var(--az7);font-weight:700}
+.titem .st{margin-left:auto;color:var(--ve5);font-weight:800}
+.titem.on .st{color:#8ee6b4}
+#topicView{min-height:380px}
+.lesson h3{font-size:1.5rem;color:var(--az9);margin-bottom:10px}
+.lesson h4{color:var(--ve7);margin:16px 0 6px;font-size:1.02rem}
+.lesson p,.lesson li{line-height:1.65;color:var(--g7);font-size:.95rem}
+.lesson ul,.lesson ol{margin:8px 0 8px 22px}
+.lesson .ej{background:var(--az0);border-left:4px solid var(--az5);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:.9rem}
+.lesson .clave{background:var(--oros);border-left:4px solid var(--oro);border-radius:8px;padding:12px 14px;margin:12px 0;font-size:.9rem}
+.tbl{width:100%;border-collapse:collapse;margin:12px 0;font-size:.88rem;background:#fff}
+.tbl th{background:var(--az7);color:#fff;padding:8px 10px;text-align:left;font-size:.8rem;letter-spacing:.5px}
+.tbl td{border:1px solid var(--g3);padding:8px 10px;vertical-align:top}
+.tbl tr:nth-child(even) td{background:var(--az0)}
+.tbl .r td{background:var(--ve1);font-weight:700}
+.formula{font-family:var(--disp);font-size:clamp(1.3rem,3.5vw,2rem);text-align:center;background:var(--az9);color:#fff;border-radius:12px;padding:16px;margin:14px 0;border-bottom:4px solid var(--oro)}
+.formula b.a{color:#7ce3ae}.formula b.p{color:#8ecdf7}.formula b.c{color:#ffd95e}
+.mini-t{border-top:4px solid var(--az9);max-width:340px;margin:14px auto;position:relative;font-size:.85rem}
+.mini-t .tt{text-align:center;font-weight:800;background:var(--az1);padding:4px;border-radius:0 0 8px 8px}
+.mini-t .cols{display:grid;grid-template-columns:1fr 1fr}
+.mini-t .cols>div{padding:8px 12px;min-height:64px}
+.mini-t .cols>div:first-child{border-right:3px solid var(--az9)}
+.mini-t .cols b{display:block;text-align:center;font-size:.7rem;letter-spacing:2px;color:var(--g5);border-bottom:1px solid var(--g3);margin-bottom:6px}
+
+/* ===== JUEGOS ===== */
+.hud{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:16px}
+.hud .pill{background:#fff;border:1px solid var(--g3);border-radius:999px;padding:7px 14px;font-size:.85rem;font-weight:700;color:var(--az7)}
+.hud .pill b{color:var(--ve7)}
+.pbar{height:12px;background:#fff;border:1px solid var(--g3);border-radius:99px;overflow:hidden;flex:1;min-width:140px}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--ve5),#1cab68);transition:width .5s ease;border-radius:99px}
+.bigcard{background:linear-gradient(150deg,#fff,var(--az0));border:2px solid var(--az5);border-radius:16px;padding:30px 22px;text-align:center;box-shadow:var(--sh)}
+.bigcard .cta{font-family:var(--disp);font-size:clamp(1.6rem,4vw,2.4rem);color:var(--az9)}
+.bigcard small{color:var(--g5);letter-spacing:2px;text-transform:uppercase;font-size:.7rem}
+.optgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;margin-top:16px}
+.opt{background:#fff;border:2px solid var(--g3);border-radius:12px;padding:13px 10px;font-weight:700;font-size:.9rem;color:var(--g7);transition:.15s;line-height:1.25}
+.opt:hover:not(:disabled){border-color:var(--az5);transform:translateY(-3px);box-shadow:var(--sh)}
+.opt:disabled{opacity:.6;cursor:default}
+.opt.right{background:var(--ve1);border-color:var(--ve5);color:var(--ve7);animation:okpulse .5s}
+.opt.wrong{background:var(--rojo1);border-color:var(--rojo);color:var(--rojo);animation:shake .4s}
+.opt.reveal{border-color:var(--ve5);color:var(--ve7)}
+@keyframes okpulse{0%{transform:scale(1)}50%{transform:scale(1.05)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.cat-ac{border-left:6px solid var(--ve5)}.cat-anc{border-left:6px solid #0d8a6e}.cat-oa{border-left:6px solid #58b98a}
+.cat-pcp{border-left:6px solid var(--az5)}.cat-plp{border-left:6px solid #123f6b}.cat-op{border-left:6px solid #5b8fc4}
+.cat-cap{border-left:6px solid var(--oro)}.cat-ing{border-left:6px solid #7b8a9b}.cat-gas{border-left:6px solid #42536a}
+.endcard{text-align:center;padding:34px 20px;background:linear-gradient(160deg,#fff,var(--az0));border:2px solid var(--az5);border-radius:16px;margin-top:18px}
+.endcard .big{font-size:3.2rem}
+.endcard h3{font-size:1.7rem;color:var(--az9);margin:8px 0}
+.endstats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin:14px 0}
+.endstats .st{background:#fff;border:1px solid var(--g3);border-radius:12px;padding:10px 18px;min-width:110px}
+.endstats .st b{display:block;font-size:1.5rem;color:var(--ve7);font-family:var(--mono)}
+.endstats .st small{color:var(--g5);font-size:.72rem;text-transform:uppercase;letter-spacing:1px}
+.endcard .stars{font-size:2rem;margin:8px 0}
+
+/* ===== ECUACIÓN ===== */
+.eq-panels{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+.eqp{border-radius:14px;padding:16px;background:#fff;border:1px solid var(--g3);border-top:6px solid var(--az5)}
+.eqp.act{border-top-color:var(--ve5)}.eqp.pas{border-top-color:var(--az5)}.eqp.cpt{border-top-color:var(--oro)}
+.eqp h4{font-size:.78rem;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:10px;color:var(--g5)}
+.eqp .row{display:flex;justify-content:space-between;gap:8px;font-size:.88rem;padding:5px 0;border-bottom:1px dashed var(--g3);color:var(--g7)}
+.eqp .row b{font-family:var(--mono);color:var(--g9)}
+.eqp .row.flash{animation:rowflash 1.2s}
+@keyframes rowflash{0%{background:var(--oros)}100%{background:transparent}}
+.eqp .tot{display:flex;justify-content:space-between;font-weight:800;font-size:1.05rem;padding-top:8px}
+.eqp.act .tot{color:var(--ve7)}.eqp.pas .tot{color:var(--az7)}.eqp.cpt .tot{color:var(--oro2)}
+.dchip{font-size:.7rem;font-weight:800;border-radius:99px;padding:1px 7px;margin-left:6px}
+.dchip.up{background:var(--ve1);color:var(--ve7)}
+.dchip.dn{background:var(--rojo1);color:var(--rojo)}
+.eq-strip{margin-top:14px;background:var(--az9);color:#fff;border-radius:14px;padding:16px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;border-bottom:4px solid var(--oro)}
+.eq-strip .v{font-family:var(--mono);font-size:clamp(1.1rem,3vw,1.6rem);font-weight:800}
+.eq-strip .v.a{color:#7ce3ae}.eq-strip .v.p{color:#8ecdf7}.eq-strip .v.c{color:#ffd95e}
+.eq-strip .s{color:#ffd95e;font-size:1.4rem;font-family:var(--disp)}
+.eqops{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:16px}
+.opbtn{background:#fff;border:2px solid var(--g3);border-radius:12px;padding:12px;text-align:left;transition:.15s;position:relative}
+.opbtn:hover{border-color:var(--ve5);transform:translateY(-3px);box-shadow:var(--sh)}
+.opbtn .ic{font-size:1.4rem}
+.opbtn b{display:block;font-size:.85rem;color:var(--az9);margin-top:4px;line-height:1.25}
+.opbtn .chk{position:absolute;top:8px;right:8px;color:var(--ve5);font-weight:800;display:none}
+.opbtn.done{border-color:#bfe5cf;background:var(--ve1)}
+.opbtn.done .chk{display:block}
+.eqreg{margin-top:14px;display:none;gap:10px;flex-wrap:wrap;align-items:center}
+.eqreg.show{display:flex}
+.eqreg input{width:160px;padding:10px;border:2px solid var(--g3);border-radius:10px;font-family:var(--mono)}
+#eqHist{margin-top:14px;max-height:170px;overflow:auto;font-size:.82rem}
+#eqHist div{padding:5px 8px;border-bottom:1px dashed var(--g3);color:var(--g7)}
+
+/* ===== ASIENTO / DIARIO ===== */
+.asiento{background:#fffdf4;border:1px solid #e3d9b8;border-radius:12px;padding:14px;margin-top:12px;font-size:.9rem}
+.asiento .arow{display:grid;grid-template-columns:40px 1fr 90px 120px;gap:8px;padding:6px 4px;border-bottom:1px dashed #d8cfa8;align-items:center}
+.asiento .arow.h{font-weight:800;color:var(--g5);font-size:.72rem;letter-spacing:1px;text-transform:uppercase;border-bottom:2px solid #d8cfa8}
+.asiento .hb{color:var(--az7);font-weight:700}
+.asiento .ab{padding-left:26px;color:var(--ve7);font-weight:700}
+.asiento .amt{text-align:right;font-family:var(--mono)}
+.side{font-size:.68rem;font-weight:800;border-radius:99px;padding:3px 9px;letter-spacing:1px}
+.side.c{background:var(--az1);color:var(--az7)}
+.side.a{background:var(--ve1);color:var(--ve7)}
+select.sel,input.inp{padding:10px;border:2px solid var(--g3);border-radius:10px;background:#fff;font-size:.92rem;max-width:100%}
+select.sel:focus,input.inp:focus{outline:none;border-color:var(--az5)}
+
+/* ===== CUENTAS T ===== */
+.tgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:16px}
+.tacc{background:#fff;border:1px solid var(--g3);border-radius:12px;padding:12px;transition:.2s}
+.tacc.okb{border-color:var(--ve5);box-shadow:0 0 0 3px var(--ve1)}
+.tacc.badb{border-color:var(--rojo);box-shadow:0 0 0 3px var(--rojo1)}
+.tname{text-align:center;font-weight:800;color:var(--az9);font-family:var(--disp);font-size:1.05rem;border-bottom:3px solid var(--az9);padding-bottom:4px}
+.tcols{display:grid;grid-template-columns:1fr 1fr;position:relative;min-height:86px}
+.tcols::before{content:'';position:absolute;left:50%;top:0;bottom:0;width:3px;background:var(--az9)}
+.tcols .col{padding:6px 8px}
+.tcols .col b{display:block;text-align:center;font-size:.66rem;letter-spacing:2px;color:var(--g5);border-bottom:1px solid var(--g3);padding-bottom:3px;margin-bottom:5px}
+.tent{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:.85rem;padding:2px 2px}
+.tent button{border:none;background:none;color:var(--rojo);font-weight:800;font-size:.8rem}
+.tsum{margin-top:8px;border-top:2px solid var(--az9);font-size:.78rem;display:grid;grid-template-columns:1fr 1fr;gap:2px 10px;color:var(--g7)}
+.tsum b{font-family:var(--mono);color:var(--g9)}
+.tsum .fin{grid-column:1/-1;background:var(--az0);border-radius:6px;padding:5px 8px;margin-top:4px;font-weight:700;color:var(--az7)}
+.tin{display:flex;gap:6px;margin-top:8px}
+.tin input{width:100%;padding:7px;border:2px solid var(--g3);border-radius:8px;font-family:var(--mono);font-size:.85rem}
+.tin button{white-space:nowrap;font-size:.72rem;padding:7px 9px;border-radius:8px;border:none;font-weight:800}
+.tin .bd{background:var(--az7);color:#fff}.tin .bh{background:var(--ve5);color:#fff}
+
+/* ===== BALANZA / TABLAS GRANDES ===== */
+.btable{width:100%;border-collapse:collapse;background:#fff;font-size:.88rem}
+.btable th{background:var(--az7);color:#fff;padding:9px 8px;font-size:.74rem;letter-spacing:1px;text-transform:uppercase}
+.btable td{border:1px solid var(--g3);padding:7px 8px;text-align:right;font-family:var(--mono)}
+.btable td.l{text-align:left;font-family:var(--body);font-weight:600;color:var(--az9)}
+.btable tr.tot td{background:var(--oros);font-weight:800;color:var(--oro2);border-top:3px double var(--oro)}
+.btable td.rok{background:var(--ve1)}
+.btable td.rbad{background:var(--rojo1)}
+.btable input{width:110px;padding:6px;border:2px solid var(--g3);border-radius:7px;text-align:right;font-family:var(--mono)}
+.btable select{padding:6px;border:2px solid var(--g3);border-radius:7px}
+.scrollx{overflow-x:auto;border-radius:12px;border:1px solid var(--g3)}
+
+/* ===== ESF ===== */
+.esf-pool{display:flex;gap:8px;flex-wrap:wrap;background:var(--az0);border:2px dashed var(--az5);border-radius:14px;padding:14px;min-height:70px}
+.pchip{background:#fff;border:2px solid var(--g3);border-radius:999px;padding:7px 13px;font-size:.8rem;font-weight:700;color:var(--g7);transition:.15s;display:inline-flex;gap:7px;align-items:center}
+.pchip small{font-family:var(--mono);color:var(--az5)}
+.pchip:hover{border-color:var(--az5);transform:translateY(-2px)}
+.pchip.sel{background:var(--az9);color:#fff;border-color:var(--oro);box-shadow:0 0 0 3px var(--oros)}
+.pchip.badplace{animation:shake .4s;border-color:var(--rojo)}
+.esf-cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:14px;margin-top:16px}
+.esf-col{background:#fff;border:1px solid var(--g3);border-radius:14px;padding:12px}
+.esf-col>h4{text-align:center;letter-spacing:3px;font-size:.85rem;padding:7px;border-radius:8px;margin-bottom:10px}
+.esf-col.act>h4{background:var(--ve1);color:var(--ve7)}
+.esf-col.pas>h4{background:var(--az1);color:var(--az7)}
+.esf-col.cap>h4{background:var(--oros);color:var(--oro2)}
+.zone{border:2px dashed var(--g3);border-radius:10px;padding:8px;margin-bottom:10px;min-height:64px;transition:.2s;cursor:pointer}
+.zone:hover{border-color:var(--az5);background:var(--az0)}
+.zone h5{font-size:.72rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--g5);margin-bottom:6px;display:flex;justify-content:space-between}
+.zone h5 .zsum{font-family:var(--mono);color:var(--az7);font-weight:800}
+.zone .pchip{font-size:.72rem;padding:4px 10px;margin:3px 3px 0 0}
+.esf-tot{margin-top:16px;display:none}
+.esf-tot.show{display:block}
+
+/* ===== RETO ===== */
+.rt-q{font-size:1.2rem;color:var(--az9);font-family:var(--disp);margin:14px 0}
+.rt-opts{display:grid;gap:10px}
+@media(min-width:700px){.rt-opts{grid-template-columns:1fr 1fr}}
+
+/* ===== CASO ===== */
+.stepper{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:18px}
+.step{flex:1;min-width:90px;text-align:center;background:#fff;border:1px solid var(--g3);border-radius:10px;padding:8px 4px;font-size:.68rem;color:var(--g5);font-weight:700;transition:.2s}
+.step b{display:block;font-size:1.15rem;font-family:var(--disp);color:var(--g3)}
+.step.cur{border-color:var(--az5);background:var(--az1);color:var(--az7)}
+.step.cur b{color:var(--az7)}
+.step.dn{border-color:#bfe5cf;background:var(--ve1);color:var(--ve7)}
+.step.dn b{color:var(--ve5)}
+.czop{background:#fff;border:1px solid var(--g3);border-radius:12px;padding:14px;margin-bottom:12px}
+.czop .t{font-weight:700;color:var(--az9);margin-bottom:10px;font-size:.95rem}
+.czop .t .n{display:inline-grid;place-items:center;width:26px;height:26px;background:var(--az7);color:#fff;border-radius:99px;font-size:.78rem;margin-right:8px}
+.chips{display:flex;gap:7px;flex-wrap:wrap}
+.chip{border:2px solid var(--g3);background:#fff;border-radius:999px;padding:6px 13px;font-size:.8rem;font-weight:700;color:var(--g7);transition:.15s}
+.chip:hover{border-color:var(--az5)}
+.chip.on{background:var(--az7);color:#fff;border-color:var(--az7)}
+.chip.cargo{background:var(--az1);border-color:var(--az5);color:var(--az7)}
+.chip.abono{background:var(--ve1);border-color:var(--ve5);color:var(--ve7)}
+.czrow{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:7px 0;border-bottom:1px dashed var(--g3);font-size:.9rem}
+.czrow .cta{font-weight:700;color:var(--az9);min-width:180px}
+.czfb{font-size:.8rem;font-weight:800;margin-top:8px}
+.czfb.ok{color:var(--ve7)}.czfb.bad{color:var(--rojo)}
+.czpanel{display:none}.czpanel.show{display:block;animation:vin .35s}
+.jinput{width:130px;padding:7px;border:2px solid var(--g3);border-radius:8px;text-align:right;font-family:var(--mono)}
+.czkpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:14px 0}
+.czkpi div{background:#fff;border:1px solid var(--g3);border-radius:12px;padding:12px;text-align:center}
+.czkpi b{font-family:var(--mono);font-size:1.25rem;color:var(--az7);display:block}
+.czkpi small{font-size:.7rem;letter-spacing:1px;text-transform:uppercase;color:var(--g5)}
+footer{max-width:1240px;margin:auto;padding:20px 16px 10px;color:var(--g5);font-size:.75rem;text-align:center;border-top:1px solid var(--g3)}
+</style>
+</head>
+<body data-view="home">
+<div id="bgdeco"><span class="sym s1">Σ</span><span class="sym s2">⚖</span></div>
+
+<!-- ============ TOPBAR ============ -->
+<header id="topbar">
+  <div class="tb-in">
+    <div class="logo" onclick="go('home')" title="Ir al inicio">
+      <div class="sig">Σ</div>
+      <div><b>ContaLab</b><small>Fundamentos de Contabilidad</small></div>
+    </div>
+    <div class="tb-stats">
+      <span class="tchip">🎖️ <b id="lvlName">Novato</b></span>
+      <div class="tchip xpwrap">⚡ <b id="xpVal">0</b> XP
+        <div class="xpbar"><i id="xpBarFill"></i></div>
+      </div>
+      <span class="tchip">⭐ <b id="starsTotal">0</b>/33</span>
+      <span class="tchip">🏅 <b id="badgeCount">0</b>/5</span>
+      <button class="btn-resetall" onclick="resetAll()">⟲ Reiniciar todo</button>
+    </div>
+  </div>
+</header>
+
+<main id="app">
+
+<!-- ============ HOME ============ -->
+<section class="view active" id="v-home">
+  <div class="eqboard">
+    <div class="eqfolio"><span>Estado de aprendizaje</span><span id="heroDate"></span><span>Folio 001 · U.A. Fundamentos de Contabilidad</span></div>
+    <h1>El laboratorio donde la contabilidad <em>se practica jugando</em></h1>
+    <p class="sub">Aprende los conceptos, entrena el cargo y abono, simula una empresa real y construye estados financieros. Cada acierto suma puntos, estrellas e insignias a tu carrera como contador(a).</p>
+    <div class="eqline">
+      <div class="eqbox verde"><small>Activo</small><b id="hEqA">$0</b></div>
+      <div class="eqsign">=</div>
+      <div class="eqbox azul"><small>Pasivo</small><b id="hEqP">$0</b></div>
+      <div class="eqsign">+</div>
+      <div class="eqbox oro"><small>Capital</small><b id="hEqC">$0</b></div>
+    </div>
+    <span class="eqok">⚖ La ecuación contable siempre en equilibrio</span>
+  </div>
+
+  <div class="overall">
+    <strong style="color:var(--az7)">Avance de la unidad:</strong>
+    <div class="obar"><i id="overallBar"></i></div>
+    <b id="overallPct" style="color:var(--ve7)">0%</b>
+  </div>
+  <div class="badgestrip" id="badgesStrip"></div>
+  <div id="menuList"></div>
+</section>
+
+<!-- ============ 1. APRENDE ============ -->
+<section class="view" id="v-aprende">
+  <div class="vhead"><span class="kicker">Módulo 01 · Aprende</span>
+    <h2>📖 Conceptos clave de contabilidad</h2>
+    <p>Recorre los 15 temas de la unidad con explicaciones visuales, ejemplos y esquemas. Cuando completes todos obtendrás la insignia <b>Aprendiz contable</b>.</p></div>
+  <div class="hud"><span class="pill">Temas vistos: <b id="aprendeProg">0/15</b></span><div class="pbar"><i id="aprendeBar"></i></div></div>
+  <div class="ap-grid">
+    <div id="topicList"></div>
+    <div class="card lesson" id="topicView"></div>
+  </div>
+</section>
+
+<!-- ============ 2. CLASIFICA ============ -->
+<section class="view" id="v-clasifica">
+  <div class="vhead"><span class="kicker">Módulo 02 · Entrena</span>
+    <h2>🗂️ Juego: clasifica las cuentas</h2>
+    <p>Aparecerán cuentas contables al azar. Clasifícalas en la categoría correcta. Obtendrás la insignia <b>Experto en cuentas</b> si logras 90 % o más.</p></div>
+  <div id="clzBox"></div>
+</section>
+
+<!-- ============ 3. CARGO Y ABONO ============ -->
+<section class="view" id="v-cargoabono">
+  <div class="vhead"><span class="kicker">Módulo 03 · Entrena</span>
+    <h2>⚖️ Juego: cargo y abono</h2>
+    <p>Lee cada operación e identifica qué cuenta se carga, se abona, aumenta o disminuye. Cada acierto vale 5 puntos. Con 90 % ganas la insignia <b>Maestro del cargo y abono</b>.</p></div>
+  <div id="caBox"></div>
+</section>
+
+<!-- ============ 4. SIMULADOR ECUACIÓN ============ -->
+<section class="view" id="v-ecuacion">
+  <div class="vhead"><span class="kicker">Módulo 04 · Simula</span>
+    <h2>🧮 Simulador de ecuación contable</h2>
+    <p>Administra la empresa <b>Comercial Aurora, S.A. de C.V.</b> Registra operaciones y observa cómo <b>Activo = Pasivo + Capital</b> se mantiene siempre en equilibrio. Explora las 8 operaciones para ganar XP.</p></div>
+  <div id="eqBox"></div>
+</section>
+
+<!-- ============ 5. REGISTRO CONTABLE ============ -->
+<section class="view" id="v-registro">
+  <div class="vhead"><span class="kicker">Módulo 05 · Simula</span>
+    <h2>🖊️ Simulador de registro contable</h2>
+    <p>Para cada operación comercial, elige la cuenta que se <b>carga</b> y la cuenta que se <b>abona</b>. Después revisa el asiento correcto explicado paso a paso.</p></div>
+  <div id="rgBox"></div>
+</section>
+
+<!-- ============ 6. CUENTAS T ============ -->
+<section class="view" id="v-cuentast">
+  <div class="vhead"><span class="kicker">Módulo 06 · Simula</span>
+    <h2>🧾 Cuentas T interactivas</h2>
+    <p>Registra cantidades en el <b>Debe</b> (izquierda) y en el <b>Haber</b> (derecha). La aplicación calcula movimientos deudores, movimientos acreedores y el saldo automáticamente. Elige un ejercicio y verifica tu mayorización.</p></div>
+  <div class="card">
+    <div class="hud" style="margin-bottom:8px">
+      <select class="sel" id="tExSel"></select>
+      <button class="btn btn-azul sm" onclick="T.loadEx()">Cargar ejercicio</button>
+      <button class="btn btn-ghost sm" onclick="T.clear()">🧹 Limpiar cuentas</button>
+      <button class="btn btn-verde sm" onclick="T.check()">✔ Revisar respuesta</button>
+    </div>
+    <div class="fb" id="tGoal"></div>
+  </div>
+  <div class="tgrid" id="tGrid"></div>
+  <div class="fb" id="tFb"></div>
+</section>
+
+<!-- ============ 7. BALANZA ============ -->
+<section class="view" id="v-balanza">
+  <div class="vhead"><span class="kicker">Módulo 07 · Construye</span>
+    <h2>📋 Balanza de comprobación</h2>
+    <p>A partir de los movimientos del libro diario, calcula el <b>saldo</b> de cada cuenta e indica si es <b>deudor o acreedor</b>. La aplicación valida que la suma de cargos sea igual a la suma de abonos.</p></div>
+  <div id="blzBox"></div>
+</section>
+
+<!-- ============ 8. ESTADO DE RESULTADOS ============ -->
+<section class="view" id="v-er">
+  <div class="vhead"><span class="kicker">Módulo 08 · Construye</span>
+    <h2>📈 Construye el Estado de Resultados</h2>
+    <p>Entre cuentas revueltas, selecciona y <b>ordena</b> las que pertenecen al Estado de Resultados. La utilidad se calcula automáticamente en cada paso. ¡Cuidado con las cuentas de balance: son distractores!</p></div>
+  <div id="erBox"></div>
+</section>
+
+<!-- ============ 9. ESF ============ -->
+<section class="view" id="v-esf">
+  <div class="vhead"><span class="kicker">Módulo 09 · Construye</span>
+    <h2>🏛️ Estado de Situación Financiera</h2>
+    <p>Clasifica 30 cuentas dentro del Activo, Pasivo y Capital contable. Toca una cuenta y luego la zona donde la colocarás (tócala de nuevo para devolverla). Al final se comprueba que <b>Activo = Pasivo + Capital</b>.</p></div>
+  <div id="esfBox"></div>
+</section>
+
+<!-- ============ 10. RETO ============ -->
+<section class="view" id="v-reto">
+  <div class="vhead"><span class="kicker">Módulo 10 · Demuestra</span>
+    <h2>🏆 Reto contable</h2>
+    <p>12 preguntas aleatorias sobre toda la unidad, con retroalimentación inmediata, barra de progreso y porcentaje final. ¿Llegarás al dominio excelente?</p></div>
+  <div id="rtBox"></div>
+</section>
+
+<!-- ============ 11. CASO INTEGRADOR ============ -->
+<section class="view" id="v-caso">
+  <div class="vhead"><span class="kicker">Módulo 11 · Demuestra</span>
+    <h2>🧩 Caso integrador: Distribuidora “El Faro”, S.A. de C.V.</h2>
+    <p>Desarrolla el ciclo contable completo de una empresa real en 7 etapas verificadas automáticamente: identificación de cuentas → cargo y abono → libro diario → cuentas T → balanza → Estado de Resultados → Estado de Situación Financiera. Completarlo otorga la insignia <b>Contador en formación</b>.</p></div>
+  <div id="czBox"></div>
+</section>
+
+</main>
+
+<!-- ============ TOOLBAR ============ -->
+<nav id="toolbar">
+  <div class="tb2">
+    <button class="btn btn-ghost sm" id="tbHome" onclick="go('home')">🏠 Inicio</button>
+    <button class="btn btn-ghost sm" id="tbPrev" onclick="step(-1)">◀ Anterior</button>
+    <button class="btn btn-ghost sm" id="tbNext" onclick="step(1)">Siguiente ▶</button>
+    <span id="tbTitle"></span>
+    <button class="btn btn-rojo sm" id="tbRestart" onclick="restartAct()">↻ Reiniciar actividad</button>
+  </div>
+</nav>
+
+<div id="toasts"></div>
+<div id="modalWrap" onclick="if(event.target===this)closeModal()"><div id="modalCard"></div></div>
+
+<footer>ContaLab · Material didáctico interactivo para la U.A. Fundamentos de Contabilidad · Funciona sin conexión · Progreso guardado en este dispositivo.</footer>
+
+<script>
+(function(){'use strict';
+/* ================= HELPERS ================= */
+var $=function(s){return document.querySelector(s)};
+var $$=function(s){return Array.prototype.slice.call(document.querySelectorAll(s))};
+function fmt(n){n=Math.round(n);var neg=n<0;if(neg)n=-n;var s='$'+n.toLocaleString('es-MX');return neg?'('+s+')':s}
+function rnd(a,b){return a+Math.floor(Math.random()*(b-a+1))}
+function pick(a){return a[Math.floor(Math.random()*a.length)]}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t}return a}
+function pm(v){return (v>=0?'+':'−')+fmt(Math.abs(v))}
+function countUp(el,from,to,dur){dur=dur||650;var t0=null;function f(t){if(!t0)t0=t;var p=Math.min(1,(t-t0)/dur);var e=1-Math.pow(1-p,3);el.textContent=fmt(from+(to-from)*e);if(p<1)requestAnimationFrame(f)}requestAnimationFrame(f)}
+function money(inp){var v=parseFloat(String(inp.value).replace(/,/g,''));return isNaN(v)?0:v}
+
+/* ================= ESTADO ================= */
+var KEY='contalab_v1';
+var ACTIDS=['aprende','clasifica','cargoabono','ecuacion','registro','cuentast','balanza','er','esf','reto','caso'];
+var VIEWS=['home'].concat(ACTIDS);
+function fresh(){var o={xp:0,badges:[],acts:{},aprendeSeen:[],casoEtapa:1,casoFails:0,casoHelp:0};ACTIDS.forEach(function(i){o.acts[i]={stars:0,intentos:0,best:0,done:false}});return o}
+var S;try{S=JSON.parse(localStorage.getItem(KEY));if(!S||!S.acts)S=fresh();else{var f=fresh();ACTIDS.forEach(function(i){if(!S.acts[i])S.acts[i]=f.acts[i]});if(!S.aprendeSeen)S.aprendeSeen=[];if(!S.casoEtapa)S.casoEtapa=1}}catch(e){S=fresh()}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+var LEVELS=[[0,'Novato contable'],[100,'Auxiliar contable'],[250,'Analista contable'],[450,'Contador junior'],[700,'Contador senior'],[1000,'Contralor'],[1400,'Director financiero']];
+function levelIdx(){var i=0;for(var k=0;k<LEVELS.length;k++)if(S.xp>=LEVELS[k][0])i=k;return i}
+var BADGES={
+ aprendiz:{n:'Aprendiz contable',d:'Completaste los 15 temas del módulo Aprende',ic:'📖'},
+ experto:{n:'Experto en cuentas',d:'90 % o más en Clasifica las cuentas',ic:'🗂️'},
+ maestro:{n:'Maestro del cargo y abono',d:'90 % o más en el juego de cargo y abono',ic:'⚖️'},
+ especialista:{n:'Especialista financiero',d:'Construiste el Estado de Resultados y el de Situación Financiera',ic:'📊'},
+ contador:{n:'Contador en formación',d:'Resolviste el caso integrador completo',ic:'🎓'}};
+
+function toast(msg,cls){var d=document.createElement('div');d.className='toast '+(cls||'');d.innerHTML=msg;$('#toasts').appendChild(d);setTimeout(function(){d.style.transition='opacity .5s';d.style.opacity='0';setTimeout(function(){d.remove()},500)},3200)}
+function addXP(n,why){var old=S.xp,oldL=levelIdx();S.xp+=n;save();toast('⚡ +'+n+' XP'+(why?' · '+why:''));if(levelIdx()>oldL)toast('🎉 ¡Subiste de nivel: <b>'+LEVELS[levelIdx()][1]+'</b>!','gold');renderHeader()}
+function starsOf(p){return p>=90?3:p>=70?2:p>=50?1:0}
+function record(id,pct){var a=S.acts[id];a.done=true;if(pct>(a.best||0))a.best=pct;var st=starsOf(pct);if(st>a.stars)a.stars=st;save();renderMenu();renderHeader();evalBadges()}
+function intentos(id){S.acts[id].intentos++;save()}
+function evalBadges(){function give(k){if(S.badges.indexOf(k)<0){S.badges.push(k);save();showBadgeModal(k);renderHeader();renderBadges();renderMenu()}}
+ if(S.acts.aprende.done)give('aprendiz');
+ if((S.acts.clasifica.best||0)>=90)give('experto');
+ if((S.acts.cargoabono.best||0)>=90)give('maestro');
+ if(S.acts.er.done&&S.acts.esf.done)give('especialista');
+ if(S.acts.caso.done)give('contador')}
+function showBadgeModal(k){var b=BADGES[k];var sparks='';for(var i=0;i<12;i++)sparks+='<span class="spark" style="left:'+(5+i*8)+'%;animation-delay:'+(i*0.2)+'s">'+pick(['✨','⭐','🌟'])+'</span>';
+ $('#modalCard').innerHTML=sparks+'<div class="big">'+b.ic+'</div><h3>¡Insignia obtenida!</h3><p style="font-size:1.15rem;font-weight:800;color:var(--oro2)">'+b.n+'</p><p>'+b.d+'</p><br><button class="btn btn-oro" onclick="closeModal()">¡Genial! Seguir practicando</button>';
+ $('#modalWrap').classList.add('show')}
+window.closeModal=function(){$('#modalWrap').classList.remove('show')};
+function confirmModal(txt,onOk){$('#modalCard').innerHTML='<div class="big">⚠️</div><h3>¿Estás seguro?</h3><p>'+txt+'</p><br><div style="display:flex;gap:10px;justify-content:center"><button class="btn btn-rojo" id="cmOk">Sí, reiniciar todo</button><button class="btn btn-ghost" onclick="closeModal()">Cancelar</button></div>';
+ $('#modalWrap').classList.add('show');$('#cmOk').onclick=function(){localStorage.removeItem(KEY);location.reload()}}
+window.resetAll=function(){confirmModal('Se borrará todo tu progreso: puntos, estrellas, insignias y avance de actividades.',null)};
+
+function renderHeader(){$('#xpVal').textContent=S.xp;$('#lvlName').textContent=LEVELS[levelIdx()][1];
+ var li=levelIdx(),base=LEVELS[li][0],next=LEVELS[li+1]?LEVELS[li+1][0]:LEVELS[li][0]+500;
+ var p=Math.min(100,Math.round((S.xp-base)/(next-base)*100));$('#xpBarFill').style.width=p+'%';
+ var st=0;ACTIDS.forEach(function(i){st+=S.acts[i].stars});$('#starsTotal').textContent=st;
+ $('#badgeCount').textContent=S.badges.length}
+function starsHTML(n){var h='';for(var i=0;i<3;i++)h+=i<n?'★':'<span class="off">★</span>';return '<span class="stars">'+h+'</span>'}
+
+/* ================= MENÚ ================= */
+var MENU=[
+ {grp:'① Aprende',items:[{id:'aprende',icon:'📖',t:'Aprende: conceptos clave',d:'15 temas visuales: contabilidad, usuarios, cuentas, cargo y abono, ecuación contable, cuentas T y ciclo contable.'}]},
+ {grp:'② Entrena',items:[
+  {id:'clasifica',icon:'🗂️',t:'Juego · Clasifica las cuentas',d:'Clasifica cuentas reales en: activos, pasivos, capital, ingresos y gastos.'},
+  {id:'cargoabono',icon:'⚖️',t:'Juego · Cargo y abono',d:'Identifica qué cuenta se carga, se abona, aumenta o disminuye en cada operación.'}]},
+ {grp:'③ Simula',items:[
+  {id:'ecuacion',icon:'🧮',t:'Simulador · Ecuación contable',d:'Opera la empresa Aurora, S.A. y observa en vivo cómo Activo = Pasivo + Capital.'},
+  {id:'registro',icon:'🖊️',t:'Simulador · Registro contable',d:'Elige las cuentas a cargar y abonar; después revisa el asiento explicado.'},
+  {id:'cuentast',icon:'🧾',t:'Cuentas T interactivas',d:'Registra movimientos al Debe y al Haber; obtén saldos automáticamente y verifica ejercicios.'}]},
+ {grp:'④ Construye',items:[
+  {id:'balanza',icon:'📋',t:'Balanza de comprobación',d:'Calcula saldos y verifica que la suma de cargos sea igual a la suma de abonos.'},
+  {id:'er',icon:'📈',t:'Construye el Estado de Resultados',d:'Ordena ingresos, costos y gastos hasta llegar a la utilidad o pérdida neta.'},
+  {id:'esf',icon:'🏛️',t:'Estado de Situación Financiera',d:'Clasifica 30 cuentas y comprueba la ecuación contable con totales reales.'}]},
+ {grp:'⑤ Demuestra',items:[
+  {id:'reto',icon:'🏆',t:'Reto contable',d:'12 preguntas aleatorias de toda la unidad con porcentaje y niveles de desempeño.'},
+  {id:'caso',icon:'🧩',t:'Caso integrador · “El Faro”',d:'De las operaciones diarias a los estados financieros: 7 etapas con verificación automática.'}]}];
+function renderMenu(){var h='';var num=0;
+ MENU.forEach(function(g){h+='<div class="mgroup"><h3>'+g.grp+'</h3>';
+  g.items.forEach(function(m){num++;var a=S.acts[m.id];
+   h+='<div class="mrow'+(a.done?' done':'')+'" onclick="go(\''+m.id+'\')">'+
+   '<div class="mnum">'+(num<10?'0':'')+num+'</div><div class="mico">'+m.icon+'</div>'+
+   '<div class="minfo"><h4>'+m.t+'</h4><p>'+m.d+'</p></div>'+
+   '<div class="mstats">'+starsHTML(a.stars)+
+   (a.intentos?'<span class="tag">Intentos: '+a.intentos+'</span>':'')+
+   (a.best?'<span class="tag gold">Mejor: '+a.best+'%</span>':'')+
+   (a.done?'<span class="tag green">✔ Completada</span>':'')+
+   (m.id==='aprende'?'<span class="tag">'+S.aprendeSeen.length+'/15 temas</span>':'')+
+   '</div><div class="mgo">Abrir →</div></div>'});
+  h+='</div>'});
+ $('#menuList').innerHTML=h;
+ var done=ACTIDS.filter(function(i){return S.acts[i].done}).length;
+ var pct=Math.round(done/ACTIDS.length*100);
+ $('#overallBar').style.width=pct+'%';$('#overallPct').textContent=pct+'% · '+done+'/'+ACTIDS.length+' actividades'}
+function renderBadges(){var h='';Object.keys(BADGES).forEach(function(k){var b=BADGES[k];var own=S.badges.indexOf(k)>=0;
+ h+='<div class="bdchip '+(own?'owned':'locked')+'" title="'+b.d+'"><span class="ic">'+b.ic+'</span><span>'+b.n+(own?' ✔':'')+'</span></div>'});
+ $('#badgesStrip').innerHTML=h}
+
+/* ================= NAVEGACIÓN ================= */
+var booted={};
+var TITLES={home:'Inicio',aprende:'Aprende',clasifica:'Clasifica las cuentas',cargoabono:'Cargo y abono',ecuacion:'Simulador de ecuación',registro:'Registro contable',cuentast:'Cuentas T',balanza:'Balanza de comprobación',er:'Estado de Resultados',esf:'Estado de Situación Financiera',reto:'Reto contable',caso:'Caso integrador'};
+window.go=function(id){if(VIEWS.indexOf(id)<0)return;
+ $$('.view').forEach(function(v){v.classList.remove('active')});
+ $('#v-'+id).classList.add('active');document.body.dataset.view=id;
+ if(!booted[id]&&INIT[id]){INIT[id]();booted[id]=true}
+ $('#tbTitle').textContent=TITLES[id];
+ var i=VIEWS.indexOf(id);$('#tbPrev').disabled=(i<=0);$('#tbNext').disabled=(i>=VIEWS.length-1);
+ window.scrollTo({top:0,behavior:'smooth'})};
+window.step=function(d){var i=VIEWS.indexOf(document.body.dataset.view);var n=i+d;if(n>=0&&n<VIEWS.length)go(VIEWS[n])};
+window.restartAct=function(){var id=document.body.dataset.view;if(id==='home')return;booted[id]=false;go(id);toast('↻ Actividad reiniciada')};
+
+/* ================= CATÁLOGO DE CUENTAS ================= */
+var CAT_INFO={ac:'Activo circulante',anc:'Activo no circulante',oa:'Otros activos',pcp:'Pasivo a corto plazo',plp:'Pasivo a largo plazo',op:'Otros pasivos',cap:'Capital contable',ing:'Ingresos',gas:'Gastos'};
+var BANK=[
+['Caja','ac','Dinero en efectivo propiedad de la empresa: un recurso de inmediata disposición.'],
+['Bancos','ac','Dinero depositado en cuentas bancarias a nombre de la empresa.'],
+['Clientes','ac','Personas que deben a la empresa por ventas de mercancía a crédito.'],
+['Documentos por cobrar','ac','Derechos de cobro amparados en títulos de crédito, exigibles en menos de un año.'],
+['Deudores diversos','ac','Personas que deben a la empresa por conceptos distintos de mercancías.'],
+['Inventarios','ac','Mercancías destinadas a la venta; se convertirán en efectivo dentro del ciclo normal.'],
+['Inversiones temporales','ac','Excedentes de efectivo colocados para obtener rendimientos a corto plazo.'],
+['Terrenos','anc','Predios propiedad de la empresa: bienes de uso permanente, no se convierten rápido en efectivo.'],
+['Edificios','anc','Construcciones propiedad de la empresa destinadas a sus operaciones.'],
+['Maquinaria y equipo','anc','Máquinas utilizadas de forma permanente en la operación del negocio.'],
+['Equipo de cómputo','anc','Computadoras y tecnología usadas de manera permanente por la empresa.'],
+['Mobiliario y equipo de oficina','anc','Escritorios, sillas y equipos de oficina de uso duradero.'],
+['Equipo de transporte','anc','Vehículos propiedad de la empresa, bienes de uso permanente.'],
+['Depósitos en garantía','oa','Cantidades entregadas en custodia (por rentas o servicios) que serán devueltas; no son efectivo disponible ni bienes de uso.'],
+['Rentas pagadas por anticipado','oa','Rentas pagadas por periodos todavía no disfrutados: un derecho de naturaleza especial.'],
+['Papelería y útiles','oa','Materiales de oficina destinados al consumo interno; no son mercancía ni efectivo.'],
+['Gastos de constitución','oa','Erogaciones realizadas para crear legalmente la sociedad.'],
+['Proveedores','pcp','Deuda con quienes suministran mercancía a crédito, exigible en menos de un año.'],
+['Acreedores diversos','pcp','Deudas con terceros por conceptos distintos de mercancías, a corto plazo.'],
+['Documentos por pagar (corto plazo)','pcp','Deudas documentadas exigibles en menos de un año.'],
+['Impuestos por pagar','pcp','Contribuciones pendientes de pago al fisco, exigibles a corto plazo.'],
+['Sueldos por pagar','pcp','Sueldos ya devengados que aún no se pagan al personal.'],
+['Documentos por pagar (largo plazo)','plp','Deudas documentadas exigibles en más de un año.'],
+['Hipotecas por pagar','plp','Créditos garantizados con bienes inmuebles, pagaderos a largo plazo.'],
+['Préstamos bancarios a largo plazo','plp','Financiamientos bancarios exigibles después de un año.'],
+['Rentas cobradas por anticipado','op','Rentas cobradas por periodos aún no transcurridos: obligación de naturaleza especial.'],
+['Intereses cobrados por anticipado','op','Intereses cobrados antes de devengarse; obligación pendiente de cumplir.'],
+['Capital social','cap','Aportaciones de los socios: la inversión de los dueños en la empresa.'],
+['Aportaciones para futuros aumentos','cap','Entregas de los socios destinadas a incrementar el capital.'],
+['Utilidades retenidas','cap','Utilidades acumuladas de ejercicios anteriores que pertenecen a los socios.'],
+['Ventas','ing','Ingreso principal por la comercialización de mercancías.'],
+['Intereses ganados','ing','Ingreso por rendimientos de inversiones o préstamos otorgados.'],
+['Otros ingresos','ing','Ingresos distintos a la actividad principal del negocio.'],
+['Devoluciones sobre ventas','ing','Cuenta de ingresos con naturaleza deudora: disminuye el ingreso por ventas.'],
+['Costo de ventas','gas','Valor de adquisición de la mercancía que se vendió.'],
+['Gastos de administración','gas','Erogaciones de la dirección y las oficinas generales.'],
+['Gastos de venta','gas','Erogaciones para promover, distribuir y concretar ventas.'],
+['Sueldos pagados','gas','Remuneración al personal: un consumo del periodo.'],
+['Renta del local','gas','Pago por el uso del inmueble donde opera el negocio.'],
+['Intereses pagados','gas','Costo financiero por capitales tomados en préstamo.']];
+var DEUDORAS=['Caja','Bancos','Clientes','Documentos por cobrar','Deudores diversos','Inventarios','Inversiones temporales','Terrenos','Edificios','Maquinaria y equipo','Equipo de cómputo','Mobiliario y equipo de oficina','Equipo de transporte','Depósitos en garantía','Rentas pagadas por anticipado','Papelería y útiles','Gastos de constitución','Costo de ventas','Gastos de administración','Gastos de venta','Sueldos pagados','Renta del local','Intereses pagados','Devoluciones sobre ventas'];
+function natDeudora(c){return DEUDORAS.indexOf(c)>=0}
+function efecto(c,side){var d=natDeudora(c);return (side==='c'&&d)||(side==='a'&&!d)?'aumenta':'disminuye'}
+
+/* ================= 1. APRENDE ================= */
+var TOPICS=[
+{t:'¿Qué es la contabilidad?',h:'<h3>1 · Concepto y finalidad de la contabilidad</h3><p>La contabilidad es la <b>técnica que registra, clasifica y resume en términos monetarios las operaciones de una entidad</b>, para producir información útil y confiable para la toma de decisiones.</p><h4>¿Para qué sirve?</h4><ul><li>Conocer la <b>situación financiera</b>: qué tiene, qué debe y qué le pertenece a los dueños.</li><li>Medir el <b>resultado del periodo</b>: utilidad o pérdida.</li><li><b>Controlar</b> los recursos y obligaciones.</li><li>Cumplir <b>obligaciones fiscales</b> y rendir cuentas.</li><li>Apoyar la <b>toma de decisiones</b> de directivos, bancos, inversionistas y autoridades.</li></ul><div class="ej"><b>Ejemplo:</b> una cafetería quiere saber si ganó dinero este mes. La contabilidad suma sus ventas ($80,000), resta sus gastos ($52,000) y responde: utilidad de $28,000.</div><div class="clave">💡 <b>Dato clave:</b> se le llama “el lenguaje de los negocios” porque todas las organizaciones —empresas, gobiernos, ONG— comunican su realidad económica a través de ella.</div>'},
+{t:'Usuarios de la información',h:'<h3>2 · Usuarios de la información financiera</h3><p>La información contable sirve a muchos interesados. Se dividen en dos grandes grupos:</p><table class="tbl"><tr><th>Usuarios internos</th><th>¿Para qué la usan?</th></tr><tr><td>Directores y gerentes</td><td>Planear, controlar y decidir (precios, presupuestos, inversiones).</td></tr><tr><td>Socios y accionistas</td><td>Conocer la rentabilidad de su inversión.</td></tr><tr><td>Empleados</td><td>Evaluar la estabilidad y el pago de prestaciones.</td></tr><tr><th>Usuarios externos</th><th>¿Para qué la usan?</th></tr><tr><td>Bancos y acreedores</td><td>Decidir si otorgan créditos y en qué condiciones.</td></tr><tr><td>Inversionistas</td><td>Evaluar si conviene invertir en la entidad.</td></tr><tr><td>Autoridades fiscales (SAT)</td><td>Verificar el correcto pago de impuestos.</td></tr><tr><td>Proveedores</td><td>Estimar si la empresa podrá pagarles.</td></tr></table><div class="clave">💡 <b>Dato clave:</b> por eso la información debe ser <b>confiable, comparable y oportuna</b>: muchos usuarios distintos dependen de ella.</div>'},
+{t:'Clasificación de cuentas',h:'<h3>3 · Clasificación de cuentas</h3><p>Una <b>cuenta</b> es el registro donde se agrupan los movimientos de un mismo concepto (por ejemplo, “Bancos”). Todas las cuentas se agrupan en cuatro grandes familias:</p><table class="tbl"><tr><th>Familia</th><th>¿Qué registra?</th><th>Ejemplos</th></tr><tr><td><b>Activo</b></td><td>Bienes y derechos</td><td>Caja, Bancos, Clientes, Inventarios, Edificios</td></tr><tr><td><b>Pasivo</b></td><td>Deudas y obligaciones</td><td>Proveedores, Hipotecas por pagar, Impuestos por pagar</td></tr><tr><td><b>Capital contable</b></td><td>Aportaciones y resultados de los dueños</td><td>Capital social, Utilidades retenidas</td></tr><tr><td><b>Resultados</b></td><td>Ingresos y gastos del periodo</td><td>Ventas, Costo de ventas, Gastos de administración</td></tr></table><div class="clave">💡 Regla mnemotécnica: el activo es lo que <b>tengo</b>, el pasivo lo que <b>debo</b>, el capital lo que <b>aportaron y ganó</b> el negocio, y los resultados lo que <b>generó</b> en el periodo.</div>'},
+{t:'Activo, pasivo y capital',h:'<h3>4 · Activo, pasivo y capital contable</h3><table class="tbl"><tr><th>Concepto</th><th>Definición</th><th>Ejemplo</th></tr><tr><td><b>Activo</b></td><td>Conjunto de bienes y derechos propiedad de la entidad, con beneficio económico futuro.</td><td>Efectivo, mercancías, locales, equipos, cuentas por cobrar.</td></tr><tr><td><b>Pasivo</b></td><td>Deudas y obligaciones a cargo de la entidad.</td><td>Préstamos, facturas por pagar a proveedores, impuestos.</td></tr><tr><td><b>Capital contable</b></td><td>Derecho de los propietarios sobre los activos netos (activo − pasivo).</td><td>Aportaciones de socios + utilidades acumuladas.</td></tr></table><div class="ej"><b>Mini balance:</b> Papelería La Esquina tiene $50,000 en bancos y $30,000 en mercancías (activo $80,000). Debe $20,000 a proveedores (pasivo). Entonces su capital es $80,000 − $20,000 = <b>$60,000</b>.</div>'},
+{t:'Activo circulante y no circulante',h:'<h3>5 · Activo circulante y no circulante</h3><p>Los activos se clasifican según su <b>disponibilidad</b>, es decir, la facilidad para convertirse en efectivo (regla general: el corte es un año o el ciclo normal de operaciones).</p><table class="tbl"><tr><th>Clasificación</th><th>Característica</th><th>Ejemplos</th></tr><tr class="r"><td>Activo circulante</td><td>Alta disponibilidad: efectivo o se convierte en él en menos de un año.</td><td>Caja, Bancos, Clientes, Inventarios, Inversiones temporales</td></tr><tr><td>Activo no circulante</td><td>Bienes de uso permanente, no destinados a la venta.</td><td>Terrenos, Edificios, Maquinaria, Equipo de cómputo, Mobiliario</td></tr><tr><td>Otros activos</td><td>Bienes y derechos de naturaleza especial.</td><td>Depósitos en garantía, Papelería y útiles, Rentas pagadas por anticipado</td></tr></table><div class="clave">💡 Pregunta guía: ¿este bien está <b>para venderse o cobrarse pronto</b> (circulante) o <b>para usarse durante años</b> (no circulante)?</div>'},
+{t:'Pasivo corto y largo plazo',h:'<h3>6 · Pasivo a corto y largo plazo</h3><p>Los pasivos se clasifican según su <b>exigibilidad</b>: qué tan pronto habrá que pagarlos.</p><table class="tbl"><tr><th>Clasificación</th><th>Característica</th><th>Ejemplos</th></tr><tr class="r"><td>Pasivo a corto plazo</td><td>Deudas exigibles en menos de un año.</td><td>Proveedores, Acreedores diversos, Impuestos por pagar, Sueldos por pagar</td></tr><tr><td>Pasivo a largo plazo</td><td>Deudas exigibles en más de un año.</td><td>Hipotecas por pagar, Préstamos bancarios a largo plazo, Documentos por pagar L/P</td></tr><tr><td>Otros pasivos</td><td>Obligaciones de naturaleza especial.</td><td>Rentas cobradas por anticipado, Intereses cobrados por anticipado</td></tr></table><div class="ej"><b>Ejemplo:</b> si el banco presta $100,000 a pagar en 3 años, es <b>pasivo a largo plazo</b>; la parte que vence este año se reclasifica a corto plazo.</div>'},
+{t:'Ingresos y gastos',h:'<h3>7 · Ingresos y gastos</h3><p>Son cuentas de <b>resultados</b>: miden lo que la entidad generó y consumió durante un periodo.</p><table class="tbl"><tr><th></th><th>Ingresos</th><th>Gastos y costos</th></tr><tr><td>¿Qué son?</td><td>Entradas por ventas, servicios o rendimientos que <b>aumentan</b> la utilidad.</td><td>Erogaciones y consumos necesarios para operar que <b>disminuyen</b> la utilidad.</td></tr><tr><td>Ejemplos</td><td>Ventas, Intereses ganados, Otros ingresos</td><td>Costo de ventas, Gastos de administración, Gastos de venta, Renta, Sueldos</td></tr><tr><td>Naturaleza</td><td>Acreedora</td><td>Deudora</td></tr></table><div class="formula">Utilidad (o pérdida) = Ingresos − Gastos</div><div class="ej"><b>Ejemplo:</b> Ventas $120,000 − Costo de ventas $70,000 − Gastos $30,000 = <b>Utilidad $20,000</b>.</div>'},
+{t:'Naturaleza de las cuentas',h:'<h3>8 · Naturaleza de las cuentas</h3><p>La <b>naturaleza</b> indica el lado de la cuenta donde se registran sus aumentos:</p><table class="tbl"><tr><th>Naturaleza</th><th>Aumenta con…</th><th>Disminuye con…</th><th>Cuentas típicas</th></tr><tr class="r"><td><b>Deudora</b></td><td>Cargos (lado izquierdo)</td><td>Abonos (lado derecho)</td><td>Activos y gastos</td></tr><tr><td><b>Acreedora</b></td><td>Abonos (lado derecho)</td><td>Cargos (lado izquierdo)</td><td>Pasivos, capital e ingresos</td></tr></table><div class="clave">💡 <b>Ojo:</b> “Devoluciones sobre ventas” es una cuenta de ingresos pero con naturaleza <b>deudora</b>, porque resta a las ventas.</div>'},
+{t:'Cargo y abono',h:'<h3>9 · Cargo y abono (partida doble)</h3><div class="mini-t"><div class="tt">Cuenta “Bancos”</div><div class="cols"><div><b>DEBE (cargo)</b>$50,000<br>$30,000</div><div><b>HABER (abono)</b>$20,000</div></div></div><ul><li><b>Cargar</b> = anotar una cantidad en el lado <b>izquierdo</b> (Debe).</li><li><b>Abonar</b> = anotar una cantidad en el lado <b>derecho</b> (Haber).</li></ul><h4>Regla de oro — partida doble</h4><p>“A todo cargo corresponde un abono por la misma cantidad.” Cada operación afecta al menos dos cuentas manteniendo la ecuación en equilibrio.</p><table class="tbl"><tr><th>Cuenta</th><th>Aumenta con</th><th>Disminuye con</th></tr><tr><td>Activo</td><td>Cargo</td><td>Abono</td></tr><tr><td>Gastos</td><td>Cargo</td><td>Abono</td></tr><tr><td>Pasivo</td><td>Abono</td><td>Cargo</td></tr><tr><td>Capital</td><td>Abono</td><td>Cargo</td></tr><tr><td>Ingresos</td><td>Abono</td><td>Cargo</td></tr></table>'},
+{t:'La ecuación contable',h:'<h3>10 · La ecuación contable</h3><div class="formula"><b class="a">Activo</b> = <b class="p">Pasivo</b> + <b class="c">Capital contable</b></div><p>Todo lo que la empresa <b>tiene</b> fue financiado por alguien: o por <b>terceros</b> (pasivo) o por los <b>dueños</b> (capital). Por eso la ecuación siempre debe cuadrar.</p><div class="ej"><b>Ejemplo 1:</b> Activo $200,000 y Pasivo $80,000 → Capital = 200,000 − 80,000 = <b>$120,000</b>.<br><b>Ejemplo 2:</b> los socios aportan $100,000 en efectivo: sube el activo (Bancos) y sube el capital (Capital social) → sigue equilibrada.<br><b>Ejemplo 3:</b> se compra mercancía a crédito $30,000: sube el activo (Inventarios) y sube el pasivo (Proveedores) → sigue equilibrada.</div><div class="clave">💡 Pruébalo tú mismo en el <b>Simulador de ecuación contable</b> (módulo 4).</div>'},
+{t:'Registro de operaciones',h:'<h3>11 · Registro de operaciones (libro diario)</h3><p>Cada operación se registra cronológicamente en el <b>libro diario</b> mediante <b>asientos</b>: primero las cuentas que se cargan y después las que se abonan.</p><div class="asiento"><div class="arow h"><span>#</span><span>Cuenta</span><span>Debe</span><span>Haber</span></div><div class="arow"><span>1</span><span class="hb">Bancos</span><span class="amt">$100,000</span><span></span></div><div class="arow"><span>2</span><span class="ab">Capital social</span><span></span><span class="amt">$100,000</span></div></div><p>Asiento 1: los socios aportan $100,000 en efectivo → <b>Bancos</b> aumenta (cargo) y <b>Capital social</b> aumenta (abono).</p><div class="clave">💡 La suma del Debe siempre debe ser igual a la suma del Haber del asiento.</div>'},
+{t:'La cuenta T',h:'<h3>12 · La cuenta T (libro mayor)</h3><p>La cuenta T es la representación gráfica de una cuenta: permite ver de un vistazo sus cargos, abonos y saldo.</p><div class="mini-t"><div class="tt">CAJA</div><div class="cols"><div><b>DEBE</b>(1) $20,000<br>(3) $15,000</div><div><b>HABER</b>(2) $8,000</div></div></div><ul><li><b>Movimiento deudor</b> = suma del Debe = $35,000</li><li><b>Movimiento acreedor</b> = suma del Haber = $8,000</li><li><b>Saldo</b> = $35,000 − $8,000 = <b>$27,000 deudor</b> (porque el Debe es mayor).</li></ul><div class="clave">💡 Si el Haber fuera mayor, el saldo sería <b>acreedor</b>. Practícalo en el módulo de <b>Cuentas T interactivas</b>.</div>'},
+{t:'Balanza de comprobación',h:'<h3>13 · Balanza de comprobación</h3><p>Es el documento que lista todas las cuentas con sus <b>movimientos</b> (suma del Debe y del Haber) y/o sus <b>saldos</b>, para verificar que la partida doble se respetó.</p><table class="tbl"><tr><th>Cuenta</th><th>Mov. deudor</th><th>Mov. acreedor</th></tr><tr><td>Bancos</td><td>$130,000</td><td>$40,000</td></tr><tr><td>Inventarios</td><td>$60,000</td><td>$0</td></tr><tr><td>Proveedores</td><td>$10,000</td><td>$45,000</td></tr><tr><td>Capital social</td><td>$0</td><td>$100,000</td></tr><tr><td>Ventas</td><td>$0</td><td>$15,000</td></tr><tr class="r"><td>Sumas iguales</td><td>$200,000</td><td>$200,000</td></tr></table><div class="clave">💡 Regla de oro: <b>Total de cargos = Total de abonos</b>. Si no cuadra, hay un error de registro. Construye la tuya en el módulo 7.</div>'},
+{t:'Estados financieros',h:'<h3>14 · Estado de Resultados y Estado de Situación Financiera</h3><h4>Estado de Resultados (la “película” del periodo)</h4><p>Muestra ingresos, costos y gastos para obtener la utilidad o pérdida:</p><div class="ej">Ventas $120,000 − Devoluciones $5,000 = Ventas netas $115,000<br>− Costo de ventas $70,000 = Utilidad bruta $45,000<br>− Gastos de venta y administración $25,000 = <b>Utilidad neta $20,000</b></div><h4>Estado de Situación Financiera (la “fotografía” a una fecha)</h4><div class="ej"><b>Activo</b>: circulante $90,000 + no circulante $110,000 = $200,000<br><b>Pasivo</b>: corto $50,000 + largo $30,000 = $80,000<br><b>Capital</b>: $120,000 → Pasivo + Capital = <b>$200,000</b> ✔</div><div class="clave">💡 El resultado del Estado de Resultados (utilidad) se integra al capital en el Estado de Situación Financiera: ¡están conectados!</div>'},
+{t:'Ciclo contable básico',h:'<h3>15 · Ciclo contable básico</h3><p>Es la secuencia de pasos que se repite en cada periodo:</p><ol><li><b>Operación</b>: ocurre el hecho económico (compra, venta, pago…).</li><li><b>Registro en el libro diario</b>: asiento con cargo y abono.</li><li><b>Pase al libro mayor</b>: movimientos a las cuentas T.</li><li><b>Balanza de comprobación</b>: verificar sumas iguales.</li><li><b>Ajustes y cierre</b>: depreciaciones, devengados, cuentas de resultados.</li><li><b>Estados financieros</b>: Estado de Resultados y Estado de Situación Financiera.</li><li><b>Inicio del siguiente periodo</b>.</li></ol><div class="clave">💡 El <b>Caso integrador</b> (módulo 11) te hace recorrer este ciclo completo con una empresa real. ¡Es el examen práctico de todo lo aprendido!</div>'}];
+var APRE={init:function(){var h='';TOPICS.forEach(function(tp,i){h+='<button class="titem" data-i="'+i+'" onclick="APRE.open('+i+')"><span>'+(i+1)+'.</span> '+tp.t+'<span class="st"></span></button>'});$('#topicList').innerHTML=h;APRE.open(S.aprendeSeen.length?Math.min(TOPICS.length-1,TOPICS.indexOf(TOPICS[S.aprendeSeen[S.aprendeSeen.length-1]]))>=0?TOPICS.indexOf(TOPICS[S.aprendeSeen[S.aprendeSeen.length-1]]):0:0);APRE.paint()},
+open:function(i){if(S.aprendeSeen.indexOf(i)<0){S.aprendeSeen.push(i);save()}
+ $$('#topicList .titem').forEach(function(b){b.classList.toggle('on',+b.dataset.i===i);b.querySelector('.st').textContent=S.aprendeSeen.indexOf(+b.dataset.i)>=0?'✔':''});
+ $('#topicView').innerHTML=TOPICS[i].h+'<div style="display:flex;justify-content:space-between;margin-top:18px;gap:8px;flex-wrap:wrap">'+(i>0?'<button class="btn btn-ghost sm" onclick="APRE.open('+(i-1)+')">◀ Tema anterior</button>':'<span></span>')+(i<TOPICS.length-1?'<button class="btn btn-azul sm" onclick="APRE.open('+(i+1)+')">Siguiente tema ▶</button>':'<button class="btn btn-verde sm" onclick="go(\'clasifica\')">¡Listo! Ir a entrenar ▶</button>')+'</div>';
+ APRE.paint();
+ if(S.aprendeSeen.length===TOPICS.length&&!S.acts.aprende.done){S.acts.aprende.done=true;S.acts.aprende.stars=3;save();addXP(40,'Módulo Aprende completado');renderMenu();evalBadges()}},
+paint:function(){$('#aprendeProg').textContent=S.aprendeSeen.length+'/15';$('#aprendeBar').style.width=Math.round(S.aprendeSeen.length/15*100)+'%'}};
+window.APRE=APRE;
+
+/* ================= 2. CLASIFICA ================= */
+var CLZ={};
+CLZ.init=function(){intentos('clasifica');CLZ.q=shuffle(BANK).slice(0,12);CLZ.i=0;CLZ.ok=0;CLZ.render()};
+CLZ.render=function(){var b=$('#clzBox');
+ if(CLZ.i>=CLZ.q.length){var pct=Math.round(CLZ.ok/CLZ.q.length*100);record('clasifica',pct);
+  var msg=pct>=90?'¡Excelente dominio de la clasificación de cuentas!':pct>=70?'¡Muy bien! Ya dominas la mayoría de las cuentas.':'Sigue practicando: repasa el módulo Aprende (temas 3 a 7).';
+  b.innerHTML='<div class="endcard"><div class="big">'+(pct>=70?'🎉':'💪')+'</div><h3>Juego terminado</h3>'+
+  '<div class="endstats"><div class="st"><b>'+CLZ.ok+'/'+CLZ.q.length+'</b><small>Aciertos</small></div><div class="st"><b>'+pct+'%</b><small>Desempeño</small></div><div class="st"><b>'+(S.acts.clasifica.intentos)+'</b><small>Intentos</small></div></div>'+
+  '<div class="stars">'+starsHTML(starsOf(pct)).replace('<span class="stars">','').replace('</span>','')+'</div><p style="color:var(--g7)">'+msg+'</p><br>'+
+  '<button class="btn btn-verde" onclick="bootedFix(\'clasifica\')">↻ Intentar nuevamente</button> <button class="btn btn-ghost" onclick="go(\'home\')">🏠 Inicio</button></div>';return}
+ var c=CLZ.q[CLZ.i];
+ var btns='';Object.keys(CAT_INFO).forEach(function(k){btns+='<button class="opt cat-'+k+'" data-k="'+k+'" onclick="CLZ.ans(\''+k+'\')">'+CAT_INFO[k]+'</button>'});
+ b.innerHTML='<div class="hud"><span class="pill">Cuenta <b>'+(CLZ.i+1)+'/'+CLZ.q.length+'</b></span><div class="pbar"><i style="width:'+Math.round(CLZ.i/CLZ.q.length*100)+'%"></i></div><span class="pill">Aciertos: <b>'+CLZ.ok+'</b></span></div>'+
+ '<div class="bigcard"><small>¿A qué categoría pertenece esta cuenta?</small><div class="cta">'+c[0]+'</div></div>'+
+ '<div class="optgrid" id="clzBtns">'+btns+'</div><div class="fb" id="clzFb"></div>'};
+CLZ.ans=function(k){var c=CLZ.q[CLZ.i];var ok=k===c[1];var fb=$('#clzFb');
+ $$('#clzBtns .opt').forEach(function(b){b.disabled=true;if(b.dataset.k===c[1])b.classList.add('right');else if(b.dataset.k===k&&!ok)b.classList.add('wrong')});
+ if(ok){CLZ.ok++;addXP(10,null);fb.className='fb show ok';fb.innerHTML='✅ <b>¡Correcto!</b> '+c[0]+' pertenece a <b>'+CAT_INFO[c[1]]+'</b>. '+c[2]}
+ else{fb.className='fb show bad';fb.innerHTML='❌ <b>Incorrecto.</b> '+c[0]+' pertenece a <b>'+CAT_INFO[c[1]]+'</b>. '+c[2]}
+ fb.innerHTML+='<br><br><button class="btn btn-azul sm" onclick="CLZ.i++;CLZ.render()">'+(CLZ.i+1>=CLZ.q.length?'Ver resultado final ▶':'Siguiente cuenta ▶')+'</button>'};
+
+/* ================= 3. CARGO Y ABONO ================= */
+var CAT_T=[
+ {mk:function(x){return 'Los socios aportan capital por '+fmt(x)+' mediante transferencia.'},cargo:'Bancos',abono:'Capital social'},
+ {mk:function(x){return 'Compra de mercancía al contado por '+fmt(x)+', pagada con cheque.'},cargo:'Inventarios',abono:'Bancos'},
+ {mk:function(x){return 'Compra de mercancía a crédito por '+fmt(x)+'.'},cargo:'Inventarios',abono:'Proveedores'},
+ {mk:function(x){return 'Venta de mercancía al contado por '+fmt(x)+' (se omite el costo de venta).'},cargo:'Bancos',abono:'Ventas'},
+ {mk:function(x){return 'Venta de mercancía a crédito por '+fmt(x)+'.'},cargo:'Clientes',abono:'Ventas'},
+ {mk:function(x){return 'Pago a proveedores por '+fmt(x)+' con transferencia bancaria.'},cargo:'Proveedores',abono:'Bancos'},
+ {mk:function(x){return 'Un cliente paga '+fmt(x)+' de su adeudo con transferencia.'},cargo:'Bancos',abono:'Clientes'},
+ {mk:function(x){return 'Pago de la renta del mes por '+fmt(x)+'.'},cargo:'Gastos de administración',abono:'Bancos'},
+ {mk:function(x){return 'El banco otorga un préstamo por '+fmt(x)+' depositado en la cuenta de la empresa.'},cargo:'Bancos',abono:'Documentos por pagar'},
+ {mk:function(x){return 'Pago del préstamo bancario por '+fmt(x)+'.'},cargo:'Documentos por pagar',abono:'Bancos'},
+ {mk:function(x){return 'Compra de equipo de cómputo al contado por '+fmt(x)+'.'},cargo:'Equipo de cómputo',abono:'Bancos'},
+ {mk:function(x){return 'Compra de mobiliario a crédito por '+fmt(x)+'.'},cargo:'Mobiliario y equipo de oficina',abono:'Acreedores diversos'},
+ {mk:function(x){return 'Pago de sueldos al personal por '+fmt(x)+'.'},cargo:'Sueldos pagados',abono:'Bancos'}];
+var CA={};
+CA.init=function(){intentos('cargoabono');CA.rounds=shuffle(CAT_T).slice(0,10).map(function(t){return {t:t,x:rnd(5,120)*1000}});CA.i=0;CA.ok=0;CA.render()};
+CA.qtypes=function(o){var res=[{q:'¿A qué cuenta se le hace un CARGO?',ans:[o.t.cargo]},
+ {q:'¿A qué cuenta se le hace un ABONO?',ans:[o.t.abono]}];
+ var inc=[],dec=[];[['c',o.t.cargo],['a',o.t.abono]].forEach(function(p){(efecto(p[1],p[0])==='aumenta'?inc:dec).push(p[1])});
+ if(inc.length)res.push({q:'¿Qué cuenta AUMENTA su saldo con esta operación?',ans:inc});
+ if(dec.length)res.push({q:'¿Qué cuenta DISMINUYE su saldo con esta operación?',ans:dec});
+ return res};
+CA.render=function(){var b=$('#caBox');
+ if(CA.i>=CA.rounds.length){var pct=Math.round(CA.ok/CA.rounds.length*100);record('cargoabono',pct);
+  var msg=pct>=90?'¡Eres un maestro del cargo y abono!':pct>=70?'¡Muy buen manejo de la partida doble!':'Repasa el tema 9 del módulo Aprende y vuelve a intentarlo.';
+  b.innerHTML='<div class="endcard"><div class="big">'+(pct>=70?'🏅':'📚')+'</div><h3>Ronda terminada</h3><div class="endstats"><div class="st"><b>'+CA.ok+'/'+CA.rounds.length+'</b><small>Aciertos</small></div><div class="st"><b>'+pct+'%</b><small>Desempeño</small></div><div class="st"><b>'+(CA.ok*5)+'</b><small>Puntos ganados</small></div></div>'+
+  '<div>'+starsHTML(starsOf(pct))+'</div><p style="color:var(--g7)">'+msg+'</p><br><button class="btn btn-verde" onclick="bootedFix(\'cargoabono\')">↻ Intentar nuevamente</button> <button class="btn btn-ghost" onclick="go(\'home\')">🏠 Inicio</button></div>';return}
+ var o=CA.rounds[CA.i];var qt=pick(CA.qtypes(o));CA.cur={o:o,qt:qt};
+ var pool=shuffle(BANK.map(function(c){return c[0]}).filter(function(n){return qt.ans.indexOf(n)<0})).slice(0,4-qt.ans.length).concat(qt.ans);
+ CA.cur.opts=shuffle(pool);
+ var h='<div class="hud"><span class="pill">Operación <b>'+(CA.i+1)+'/'+CA.rounds.length+'</b></span><div class="pbar"><i style="width:'+Math.round(CA.i/CA.rounds.length*100)+'%"></i></div><span class="pill">Puntos: <b>'+(CA.ok*5)+'</b></span></div>';
+ h+='<div class="card"><h3>Operación '+(CA.i+1)+'</h3><p style="font-size:1.05rem;color:var(--g9);line-height:1.6">“'+o.t.mk(o.x)+'”</p><p class="rt-q" style="font-size:1.05rem">'+qt.q+'</p><div class="rt-opts">';
+ CA.cur.opts.forEach(function(n){h+='<button class="opt" data-n="'+n+'" onclick="CA.ans(this)">'+n+'</button>'});
+ h+='</div><div class="fb" id="caFb"></div></div>';b.innerHTML=h};
+CA.ans=function(btn){var n=btn.dataset.n,qt=CA.cur.qt,ok=qt.ans.indexOf(n)>=0;
+ $$('.rt-opts .opt').forEach(function(b){b.disabled=true;if(qt.ans.indexOf(b.dataset.n)>=0)b.classList.add('right');else if(b===btn&&!ok)b.classList.add('wrong')});
+ var fb=$('#caFb');var expl='';
+ if(ok){CA.ok++;addXP(5,null);expl='✅ <b>¡Correcto!</b> '+n+' '+(qt.q.indexOf('CARGO')>=0?'se carga':qt.q.indexOf('ABONO')>=0?'se abona':(qt.q.indexOf('AUMENTA')>=0?'aumenta':'disminuye'))+'.'}
+ else{expl='❌ <b>Incorrecto.</b> Respuesta(s) correcta(s): <b>'+qt.ans.join(' y ')+'</b>.'}
+ var o=CA.cur.o.t;
+ expl+='<br>📘 <b>Explicación:</b> se <span class="side c">CARGA</span> a <b>'+o.cargo+'</b> y se <span class="side a">ABONA</span> a <b>'+o.abono+'</b>. Efecto: <b>'+o.cargo+'</b> '+efecto(o.cargo,'c')+' y <b>'+o.abono+'</b> '+efecto(o.abono,'a')+'.';
+ if(qt.ans.length>1&&ok)expl+='<br><i>También era válida: '+qt.ans.filter(function(a){return a!==n}).join(', ')+'.</i>';
+ fb.className='fb show '+(ok?'ok':'bad');
+ fb.innerHTML=expl+'<br><br><button class="btn btn-azul sm" onclick="CA.i++;CA.render()">'+(CA.i+1>=CA.rounds.length?'Ver resultado ▶':'Siguiente operación ▶')+'</button>'};
+
+/* ================= 4. ECUACIÓN ================= */
+var EQ={explored:{}};
+EQ.init=function(){var C=rnd(30,60)*10000,P=rnd(10,25)*10000,I=rnd(10,30)*5000;
+ EQ.d={efe:C+P-I,cli:0,inv:I,fij:0,prov:0,pre:0,cap:C,res:0};EQ.explored={};EQ.hist=[];EQ.render();
+ EQ.note('🏢 Empresa creada con: aportación de capital '+fmt(C)+', préstamo bancario '+fmt(P)+' y compra de inventario al contado '+fmt(I)+'.')};
+EQ.tot=function(){var d=EQ.d;return {a:d.efe+d.cli+d.inv+d.fij,p:d.prov+d.pre,c:d.cap+d.res}};
+EQ.note=function(t){$('#eqEffect').innerHTML=t;$('#eqEffect').className='fb show info'};
+EQ.OPS=[
+ {id:'aportacion',ic:'💼',n:'Aportación de capital',gen:function(){return rnd(20,80)*1000},
+  chk:function(){return true},ap:function(x){EQ.d.efe+=x;EQ.d.cap+=x;return [['Efectivo',x],['Capital social',x]]},
+  ex:function(x){return 'Entran '+fmt(x)+' de recursos (aumenta el Activo) y aumenta en la misma cantidad la inversión de los socios (Capital).'}}
+ ,{id:'compraC',ic:'📦',n:'Compra de mercancía al contado',gen:function(){return rnd(5,30)*1000},
+  chk:function(x){return x<=EQ.d.efe},ap:function(x){EQ.d.efe-=x;EQ.d.inv+=x;return [['Inventarios',x],['Efectivo',-x]]},
+  ex:function(x){return 'Un activo se convierte en otro: sale efectivo y entra mercancía. El total del Activo no cambia.'}}
+ ,{id:'compraCr',ic:'🧾',n:'Compra de mercancía a crédito',gen:function(){return rnd(10,40)*1000},
+  chk:function(){return true},ap:function(x){EQ.d.inv+=x;EQ.d.prov+=x;return [['Inventarios',x],['Proveedores',x]]},
+  ex:function(x){return 'Aumenta el Activo (mercancía) y aumenta el Pasivo (deuda con proveedores) en la misma cantidad.'}}
+ ,{id:'pagoProv',ic:'🤝',n:'Pago a proveedores',gen:function(){return Math.min(EQ.d.prov,rnd(5,30)*1000)},
+  chk:function(){return EQ.d.prov>0&&EQ.d.efe>0},ap:function(x){EQ.d.prov-=x;EQ.d.efe-=x;return [['Proveedores',-x],['Efectivo',-x]]},
+  ex:function(x){return 'Disminuye el Pasivo al liquidar la deuda y disminuye el Activo al salir el efectivo.'}}
+ ,{id:'equipo',ic:'🖥️',n:'Compra de equipo',gen:function(){return rnd(10,40)*1000},
+  chk:function(x){return x<=EQ.d.efe},ap:function(x){EQ.d.fij+=x;EQ.d.efe-=x;return [['Activo fijo',x],['Efectivo',-x]]},
+  ex:function(x){return 'Cambio dentro del Activo: el efectivo se transforma en equipo de uso permanente.'}}
+ ,{id:'prestamo',ic:'🏦',n:'Préstamo bancario',gen:function(){return rnd(20,60)*1000},
+  chk:function(){return true},ap:function(x){EQ.d.efe+=x;EQ.d.pre+=x;return [['Efectivo',x],['Préstamos bancarios',x]]},
+  ex:function(x){return 'Entra dinero (aumenta el Activo) y nace la obligación con el banco (aumenta el Pasivo).'}}
+ ,{id:'venta',ic:'🛒',n:'Venta de mercancía',gen:function(){var c=Math.max(2000,Math.round(Math.min(EQ.d.inv,rnd(5,20)*1000)));return {costo:c,precio:c+Math.round(c*rnd(4,9)/10)}},
+  chk:function(){return EQ.d.inv>0},ap:function(o){EQ.d.efe+=o.precio;EQ.d.inv-=o.costo;EQ.d.res+=(o.precio-o.costo);return [['Efectivo',o.precio],['Inventarios',-o.costo],['Resultado del ejercicio',o.precio-o.costo]]},
+  ex:function(o){return 'Entra '+fmt(o.precio)+' por la venta, sale mercancía que costó '+fmt(o.costo)+' y la diferencia ('+fmt(o.precio-o.costo)+') es la utilidad que aumenta el Capital.'}}
+ ,{id:'gastos',ic:'💸',n:'Pago de gastos',gen:function(){return rnd(3,15)*1000},
+  chk:function(x){return x<=EQ.d.efe},ap:function(x){EQ.d.efe-=x;EQ.d.res-=x;return [['Efectivo',-x],['Resultado del ejercicio',-x]]},
+  ex:function(x){return 'Sale efectivo y el gasto reduce la utilidad del ejercicio, por lo que disminuye el Capital.'}}];
+EQ.pick=function(id){var op=EQ.OPS.filter(function(o){return o.id===id})[0];if(!op.chk())return toast('⚠️ La empresa no puede realizar esa operación ahora (faltan recursos o saldos).','red');
+ var g=op.gen();EQ.sel={op:op,g:g};
+ $('#eqReg').classList.add('show');
+ $('#eqRegTitle').innerHTML='<b>'+op.ic+' '+op.n+'</b> — captura el monto y registra:';
+ var v=op.id==='venta'?g.precio:g;$('#eqAmt').value=v;$('#eqAmt').dataset.extra=op.id==='venta'?g.costo:'';
+ $('#eqRegHint').textContent=op.id==='venta'?'Precio de venta sugerido. Costo de la mercancía: '+fmt(g.costo):'Monto sugerido: '+fmt(v)+'. Puedes cambiarlo.'};
+EQ.doReg=function(){var s=EQ.sel;if(!s)return;var op=s.op,x=money($('#eqAmt'));
+ if(op.id==='venta'){if(x<=s.g.costo)return toast('⚠️ El precio debe ser mayor al costo ('+fmt(s.g.costo)+').','red');s.g.precio=x}else s.g=x;
+ if(!op.chk(op.id==='venta'?s.g:x))return toast('⚠️ La empresa no tiene recursos suficientes para ese monto.','red');
+ var old=JSON.parse(JSON.stringify(EQ.d));
+ var eff=op.ap(op.id==='venta'?s.g:x);EQ.render(eff);
+ EQ.hist.unshift('▸ '+op.n+' por '+fmt(op.id==='venta'?s.g.precio:x));
+ if(!EQ.explored[op.id]){EQ.explored[op.id]=1;addXP(5,'Operación explorada');var n=Object.keys(EQ.explored).length;if(n===8)toast('🌟 ¡Exploraste las 8 operaciones del simulador!','gold')}
+ EQ.note('🔎 <b>'+op.n+':</b> '+op.ex(op.id==='venta'?s.g:x)+'<br>La ecuación sigue en equilibrio: '+fmt(EQ.tot().a)+' = '+fmt(EQ.tot().p)+' + '+fmt(EQ.tot().c));
+ $('#eqReg').classList.remove('show');EQ.sel=null};
+EQ.render=function(eff){var d=EQ.d,t=EQ.tot();var ch={};(eff||[]).forEach(function(e){ch[e[0]]=e[1]});
+ function rows(arr){return arr.map(function(r){var delta=ch[r[0]]?'<span class="dchip '+(ch[r[0]]>=0?'up':'dn')+'">'+pm(ch[r[0]])+'</span>':'';
+  return '<div class="row'+(ch[r[0]]?' flash':'')+'"><span>'+r[0]+delta+'</span><b>'+fmt(r[1])+'</b></div>'}).join('')}
+ var A=[['Efectivo (Caja y bancos)',d.efe],['Clientes',d.cli],['Inventarios',d.inv],['Activo fijo',d.fij]];
+ var P=[['Proveedores',d.prov],['Préstamos bancarios',d.pre]];
+ var C=[['Capital social',d.cap],['Resultado del ejercicio',d.res]];
+ $('#eqBox').innerHTML=
+ '<div class="eq-panels">'+
+ '<div class="eqp act"><h4>🟢 Activo</h4>'+rows(A)+'<div class="tot"><span>Total activo</span><span id="eqTA">'+fmt(t.a)+'</span></div></div>'+
+ '<div class="eqp pas"><h4>🔵 Pasivo</h4>'+rows(P)+'<div class="tot"><span>Total pasivo</span><span id="eqTP">'+fmt(t.p)+'</span></div></div>'+
+ '<div class="eqp cpt"><h4>🟡 Capital contable</h4>'+rows(C)+'<div class="tot"><span>Total capital</span><span id="eqTC">'+fmt(t.c)+'</span></div></div></div>'+
+ '<div class="eq-strip"><span class="v a">'+fmt(t.a)+'</span><span class="s">=</span><span class="v p">'+fmt(t.p)+'</span><span class="s">+</span><span class="v c">'+fmt(t.c)+'</span><span class="eqok" style="margin:0">⚖ ¡En equilibrio!</span></div>'+
+ '<div class="card" style="margin-top:14px"><h3>Registra una operación</h3><p style="color:var(--g7);font-size:.88rem">Exploradas: <b>'+Object.keys(EQ.explored).length+'/8</b> tipos de operación.</p>'+
+ '<div class="eqops">'+EQ.OPS.map(function(o){return '<button class="opbtn'+(EQ.explored[o.id]?' done':'')+'" onclick="EQ.pick(\''+o.id+'\')"><span class="chk">✔</span><span class="ic">'+o.ic+'</span><b>'+o.n+'</b></button>'}).join('')+'</div>'+
+ '<div class="eqreg" id="eqReg"><span id="eqRegTitle"></span><input type="number" class="inp" id="eqAmt" min="0"><span id="eqRegHint" style="font-size:.8rem;color:var(--g5)"></span><button class="btn btn-verde sm" onclick="EQ.doReg()">Registrar ✓</button><button class="btn btn-ghost sm" onclick="document.getElementById(\'eqReg\').classList.remove(\'show\');EQ.sel=null">Cancelar</button></div>'+
+ '<div class="fb" id="eqEffect"></div>'+
+ '<h4 style="margin-top:14px;color:var(--az7)">📜 Historia de operaciones</h4><div id="eqHist">'+(EQ.hist.length?EQ.hist.map(function(h){return '<div>'+h+'</div>'}).join(''):'<div>Aún no hay operaciones registradas.</div>')+'</div></div>'};
+
+/* ================= 5. REGISTRO ================= */
+var RG={};
+RG.T=[
+ {mk:function(x){return 'Los socios realizan una aportación inicial de '+fmt(x)+' en efectivo.'},c:'Caja',a:'Capital social',fx:'El efectivo de la empresa aumenta: se CARGA Caja (activo↑). Los dueños invirtieron más: se ABONA Capital social (capital↑).'},
+ {mk:function(x){return 'Compra de mercancía al contado por '+fmt(x)+', pagada con cheque.'},c:'Inventarios',a:'Bancos',fx:'Llega mercancía al almacén: se CARGA Inventarios (activo↑). Sale dinero del banco: se ABONA Bancos (activo↓).'},
+ {mk:function(x){return 'Compra de mercancía a crédito a un proveedor por '+fmt(x)+'.'},c:'Inventarios',a:'Proveedores',fx:'Aumenta la mercancía: CARGO a Inventarios (activo↑). Nace la deuda: ABONO a Proveedores (pasivo↑).'},
+ {mk:function(x){return 'Venta de mercancía al contado por '+fmt(x)+' (se omite el costo).'},c:'Bancos',a:'Ventas',fx:'Entra el cobro: CARGO a Bancos (activo↑). Se genera el ingreso: ABONO a Ventas (ingreso↑).'},
+ {mk:function(x){return 'Venta de mercancía a crédito por '+fmt(x)+'.'},c:'Clientes',a:'Ventas',fx:'El cliente queda a deber: CARGO a Clientes (activo↑). Se genera el ingreso: ABONO a Ventas.'},
+ {mk:function(x){return 'Pago a proveedores por '+fmt(x)+' mediante transferencia.'},c:'Proveedores',a:'Bancos',fx:'La deuda disminuye: CARGO a Proveedores (pasivo↓). Sale el dinero: ABONO a Bancos (activo↓).'},
+ {mk:function(x){return 'Un cliente paga '+fmt(x)+' de su adeudo en efectivo.'},c:'Caja',a:'Clientes',fx:'Entra el dinero: CARGO a Caja (activo↑). El derecho de cobro disminuye: ABONO a Clientes (activo↓).'},
+ {mk:function(x){return 'Pago de la renta del local por '+fmt(x)+'.'},c:'Gastos de administración',a:'Bancos',fx:'Se consume el servicio: CARGO a Gastos de administración (gasto↑). Sale el pago: ABONO a Bancos.'},
+ {mk:function(x){return 'El banco otorga un préstamo por '+fmt(x)+' depositado en la cuenta.'},c:'Bancos',a:'Documentos por pagar',fx:'Entra el dinero: CARGO a Bancos (activo↑). Nace la obligación: ABONO a Documentos por pagar (pasivo↑).'},
+ {mk:function(x){return 'Compra de equipo de cómputo al contado por '+fmt(x)+'.'},c:'Equipo de cómputo',a:'Bancos',fx:'Llega el equipo: CARGO a Equipo de cómputo (activo fijo↑). Sale el pago: ABONO a Bancos (activo↓).'}];
+RG.init=function(){intentos('registro');RG.q=shuffle(RG.T).slice(0,8).map(function(t){return {t:t,x:rnd(10,90)*1000}});RG.i=0;RG.pts=0;RG.render()};
+RG.CTAS=['Bancos','Caja','Clientes','Inventarios','Proveedores','Acreedores diversos','Documentos por pagar','Capital social','Ventas','Costo de ventas','Gastos de administración','Equipo de cómputo','Mobiliario y equipo de oficina','Sueldos por pagar'];
+RG.render=function(){var b=$('#rgBox');
+ if(RG.i>=RG.q.length){var pct=Math.round(RG.pts/(RG.q.length*2)*100);record('registro',pct);
+  b.innerHTML='<div class="endcard"><div class="big">🖊️</div><h3>Simulación terminada</h3><div class="endstats"><div class="st"><b>'+RG.pts+'/'+(RG.q.length*2)+'</b><small>Selecciones correctas</small></div><div class="st"><b>'+pct+'%</b><small>Desempeño</small></div></div><div>'+starsHTML(starsOf(pct))+'</div><p style="color:var(--g7)">'+(pct>=90?'¡Dominas la mecánica del asiento contable!':pct>=70?'¡Muy bien! Sigue afinando la lógica de cada asiento.':'Consejo: recuerda — activos y gastos aumentan cargando; pasivos, capital e ingresos aumentan abonando.')+'</p><br><button class="btn btn-verde" onclick="bootedFix(\'registro\')">↻ Intentar nuevamente</button> <button class="btn btn-ghost" onclick="go(\'home\')">🏠 Inicio</button></div>';return}
+ var o=RG.q[RG.i];var opts=RG.CTAS.map(function(c){return '<option>'+c+'</option>'}).join('');
+ b.innerHTML='<div class="hud"><span class="pill">Asiento <b>'+(RG.i+1)+'/'+RG.q.length+'</b></span><div class="pbar"><i style="width:'+Math.round(RG.i/RG.q.length*100)+'%"></i></div><span class="pill">Aciertos: <b>'+RG.pts+'</b></span></div>'+
+ '<div class="card"><h3>Operación '+(RG.i+1)+'</h3><p style="font-size:1.05rem;line-height:1.6;color:var(--g9)">“'+o.t.mk(o.x)+'”</p>'+
+ '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-top:14px">'+
+ '<div><label style="font-size:.78rem;font-weight:800;color:var(--az7);letter-spacing:1px">CUENTA QUE SE CARGA (DEBE)</label><select class="sel" id="rgC" style="width:100%;margin-top:6px"><option value="">— Elige la cuenta —</option>'+opts+'</select></div>'+
+ '<div><label style="font-size:.78rem;font-weight:800;color:var(--ve7);letter-spacing:1px">CUENTA QUE SE ABONA (HABER)</label><select class="sel" id="rgA" style="width:100%;margin-top:6px"><option value="">— Elige la cuenta —</option>'+opts+'</select></div></div>'+
+ '<br><button class="btn btn-verde" onclick="RG.check()">✔ Revisar respuesta</button></div>'+
+ '<div class="fb" id="rgFb"></div>'};
+RG.check=function(){var o=RG.q[RG.i].t,x=RG.q[RG.i].x;var c=$('#rgC').value,a=$('#rgA').value;
+ if(!c||!a)return toast('⚠️ Selecciona ambas cuentas antes de revisar.','red');
+ var okC=c===o.c,okA=a===o.a,n=(okC?1:0)+(okA?1:0);RG.pts+=n;
+ if(n===2)addXP(8,'Asiento completo');else if(n===1)addXP(4,'Media respuesta');
+ var fb=$('#rgFb');fb.className='fb show '+(n===2?'ok':n===1?'info':'bad');
+ fb.innerHTML=(n===2?'✅ <b>¡Asiento perfecto!</b>':n===1?'🟡 <b>Casi:</b> una de las dos cuentas no es la correcta.':'❌ <b>Ninguna cuenta es la correcta.</b>')+
+ '<div class="asiento"><div class="arow h"><span>#</span><span>Cuenta</span><span>Debe</span><span>Haber</span></div>'+
+ '<div class="arow"><span>1</span><span class="hb">'+o.c+'</span><span class="amt">'+fmt(x)+'</span><span></span></div>'+
+ '<div class="arow"><span>2</span><span class="ab">'+o.a+'</span><span></span><span class="amt">'+fmt(x)+'</span></div></div>'+
+ '<p style="margin-top:8px">📘 <b>Procedimiento:</b> '+o.fx+'</p>'+
+ '<button class="btn btn-azul sm" style="margin-top:10px" onclick="RG.i++;RG.render()">'+(RG.i+1>=RG.q.length?'Ver resultado ▶':'Siguiente asiento ▶')+'</button>'};
+
+/* ================= 6. CUENTAS T ================= */
+var T={CTAS:['Bancos','Clientes','Inventarios','Equipo de cómputo','Proveedores','Capital social','Ventas','Gastos de administración'],
+ EX:[{n:'Ejercicio 1 · Comercial “Nova”',ops:[
+  ['Los socios aportan $120,000 en efectivo (transferencia).','Bancos','Capital social',120000],
+  ['Compra de mercancía a crédito por $45,000.','Inventarios','Proveedores',45000],
+  ['Venta de mercancía al contado por $78,000.','Bancos','Ventas',78000],
+  ['Pago a proveedores por $20,000 con transferencia.','Proveedores','Bancos',20000]]},
+ {n:'Ejercicio 2 · Servicios “Delta”',ops:[
+  ['Aportación de capital por $90,000 en efectivo.','Bancos','Capital social',90000],
+  ['Compra de equipo de cómputo al contado por $35,000.','Equipo de cómputo','Bancos',35000],
+  ['Venta de servicios a crédito por $60,000.','Clientes','Ventas',60000],
+  ['Cobro a cliente por $35,000 (transferencia).','Bancos','Clientes',35000],
+  ['Pago de renta del mes por $9,000.','Gastos de administración','Bancos',90000/10]]},
+ {n:'Ejercicio 3 · Ferretería “El Tornillo”',ops:[
+  ['Aportación de capital por $75,000.','Bancos','Capital social',75000],
+  ['Compra de mercancía a crédito por $40,000.','Inventarios','Proveedores',40000],
+  ['Pago parcial a proveedores por $30,000.','Proveedores','Bancos',30000],
+  ['Venta de mercancía al contado por $52,000.','Bancos','Ventas',52000],
+  ['Venta de mercancía a crédito por $18,000.','Clientes','Ventas',18000]]}],
+ data:{},goal:null,passed:{},
+ init:function(){T.data={};T.CTAS.forEach(function(c){T.data[c]={d:[],h:[]}});T.goal=null;
+  var sel=$('#tExSel');sel.innerHTML='<option value="">— Modo libre (sin ejercicio) —</option>'+T.EX.map(function(e,i){return '<option value="'+i+'">'+e.n+'</option>'}).join('');
+  T.paint();$('#tGoal').className='fb';$('#tFb').className='fb'},
+ loadEx:function(){var v=$('#tExSel').value;T.clearData();
+  if(v===''){T.goal=null;$('#tGoal').className='fb';$('#tGoal').innerHTML='';T.paint();return}
+  T.goal=T.EX[+v];T.paint();
+  $('#tGoal').className='fb show info';
+  $('#tGoal').innerHTML='<b>📝 Operaciones a registrar en las cuentas T:</b><ol style="margin:8px 0 0 22px;line-height:1.8">'+T.goal.ops.map(function(o){return '<li>'+o[0]+' → <i>carga a '+o[1]+', abona a '+o[2]+'</i></li>'}).join('')+'</ol>'},
+ clearData:function(){T.CTAS.forEach(function(c){T.data[c]={d:[],h:[]}})},
+ clear:function(){T.clearData();T.paint();$('#tFb').className='fb';toast('🧹 Cuentas limpias')},
+ add:function(c,side){var inp=$('#tin-'+c.replace(/[^a-z]/gi,''));var v=money(inp);if(v<=0)return toast('⚠️ Escribe una cantidad mayor a cero.','red');
+  (side==='d'?T.data[c].d:T.data[c].h).push(v);inp.value='';T.paint()},
+ del:function(c,side,i){(side==='d'?T.data[c].d:T.data[c].h).splice(i,1);T.paint()},
+ sum:function(c){var d=T.data[c].d.reduce(function(a,b){return a+b},0),h=T.data[c].h.reduce(function(a,b){return a+b},0);
+  return {md:d,ma:h,sd:Math.max(0,d-h),sa:Math.max(0,h-d)}},
+ paint:function(){var g=$('#tGrid');var h='';
+  T.CTAS.forEach(function(c){var id='tin-'+c.replace(/[^a-z]/gi,'');var s=T.sum(c);var dd=T.data[c],i;
+   h+='<div class="tacc" id="tacc-'+id+'"><div class="tname">'+c+'</div><div class="tcols">'+
+   '<div class="col"><b>DEBE</b>'+dd.d.map(function(v,i){return '<div class="tent"><span>'+fmt(v)+'</span><button onclick="T.del(\''+c+'\',\'d\','+i+')">✕</button></div>'}).join('')+'</div>'+
+   '<div class="col"><b>HABER</b>'+dd.h.map(function(v,i){return '<div class="tent"><span>'+fmt(v)+'</span><button onclick="T.del(\''+c+'\',\'h\','+i+')">✕</button></div>'}).join('')+'</div></div>'+
+   '<div class="tin"><input type="number" id="'+id+'" placeholder="Cantidad" min="0"><button class="bd" onclick="T.add(\''+c+'\',\'d\')">+ Debe</button><button class="bh" onclick="T.add(\''+c+'\',\'h\')">+ Haber</button></div>'+
+   '<div class="tsum"><span>Mov. deudor: <b>'+fmt(s.md)+'</b></span><span>Mov. acreedor: <b>'+fmt(s.ma)+'</b></span><span>Saldo deudor: <b>'+fmt(s.sd)+'</b></span><span>Saldo acreedor: <b>'+fmt(s.sa)+'</b></span>'+
+   '<div class="fin">Saldo final: '+(s.sd>=s.sa?(s.sd?'$'+s.sd.toLocaleString('es-MX')+' DEUDOR':'$0'):'$'+s.sa.toLocaleString('es-MX')+' ACREEDOR')+'</div></div></div>'});
+  g.innerHTML=h},
+ check:function(){if(!T.goal)return toast('⚠️ Primero carga un ejercicio para poder verificar.','red');
+  var exp={};T.goal.ops.forEach(function(o){exp[o[1]]=exp[o[1]]||{md:0,ma:0};exp[o[2]]=exp[o[2]]||{md:0,ma:0};exp[o[1]].md+=o[3];exp[o[2]].ma+=o[3]});
+  var oks=0,total=Object.keys(exp).length,fails=[];
+  Object.keys(exp).forEach(function(c){var id='tin-'+c.replace(/[^a-z]/gi,'');var el=$('#tacc-'+id);var s=T.sum(c);
+   var ok=s.md===exp[c].md&&s.ma===exp[c].ma;el.classList.remove('okb','badb');el.classList.add(ok?'okb':'badb');
+   if(ok)oks++;else fails.push(c+' (esperado: MD '+fmt(exp[c].md)+' / MA '+fmt(exp[c].ma)+')')});
+  var fb=$('#tFb');
+  if(oks===total){fb.className='fb show ok';fb.innerHTML='🎉 <b>¡Mayorización perfecta!</b> Los '+total+' movimientos coinciden con las operaciones.';
+   var k='ex'+T.EX.indexOf(T.goal);if(!T.passed[k]){T.passed[k]=1;addXP(20,'Ejercicio de cuentas T completado')}}
+  else{fb.className='fb show bad';fb.innerHTML='❌ Aún hay diferencias en: '+fails.join(' · ')+'. Revisa los cargos y abonos de esas cuentas.';T.goalF=(T.goalF||0)+1}}};
+window.T=T;
+
+/* ================= 7. BALANZA ================= */
+var BLZ={};
+BLZ.T=[['Aportación de capital en efectivo','Bancos','Capital social'],['Compra de mercancía al contado','Inventarios','Bancos'],['Compra de mercancía a crédito','Inventarios','Proveedores'],['Venta de mercancía al contado','Bancos','Ventas'],['Venta de mercancía a crédito','Clientes','Ventas'],['Pago a proveedores con transferencia','Proveedores','Bancos'],['Cobro a un cliente','Bancos','Clientes'],['Pago de la renta del local','Gastos de administración','Bancos']];
+BLZ.init=function(){intentos('balanza');BLZ.gen();BLZ.render()};
+BLZ.gen=function(){var ops=shuffle(BLZ.T).slice(0,6);var agg={};
+ ops.forEach(function(o){var x=rnd(15,120)*1000;agg[o[1]]=agg[o[1]]||{d:0,a:0};agg[o[2]]=agg[o[2]]||{d:0,a:0};agg[o[1]].d+=x;agg[o[2]].a+=x});
+ BLZ.rows=shuffle(Object.keys(agg).map(function(k){return {c:k,d:agg[k].d,a:agg[k].a}}));BLZ.fails=0};
+BLZ.render=function(){var smd=0,sma=0;BLZ.rows.forEach(function(r){smd+=r.d;sma+=r.a});
+ var h='<div class="card"><h3>Balanza de comprobación — movimientos del periodo</h3><p style="color:var(--g7);font-size:.9rem">Calcula el saldo de cada cuenta (Mov. deudor − Mov. acreedor) e indica si es <b>deudor</b> o <b>acreedor</b>.</p>'+
+ '<div class="scrollx" style="margin-top:12px"><table class="btable"><tr><th style="text-align:left">Cuenta</th><th>Mov. deudor</th><th>Mov. acreedor</th><th>Saldo</th><th>Tipo</th></tr>';
+ BLZ.rows.forEach(function(r,i){h+='<tr id="blzr'+i+'"><td class="l">'+r.c+'</td><td>'+fmt(r.d)+'</td><td>'+fmt(r.a)+'</td>'+
+ '<td><input type="number" min="0" id="blzS'+i+'"></td><td style="text-align:left"><select id="blzT'+i+'"><option>D</option><option>A</option><option>—</option></select></td></tr>'});
+ h+='<tr class="tot"><td class="l">Sumas iguales</td><td>'+fmt(smd)+'</td><td>'+fmt(sma)+'</td><td colspan="2">'+(smd===sma?'✔ Cargos = Abonos':'✖')+'</td></tr></table></div>'+
+ '<br><button class="btn btn-verde" onclick="BLZ.check()">✔ Revisar respuesta</button> <button class="btn btn-azul" onclick="BLZ.gen();BLZ.render();toast(\'📋 Nueva balanza generada con datos diferentes\')">🔄 Nueva balanza</button></div><div class="fb" id="blzFb"></div>';
+ $('#blzBox').innerHTML=h};
+BLZ.check=function(){var ok=0,sd=0,sa=0;
+ BLZ.rows.forEach(function(r,i){var want=Math.abs(r.d-r.a);var tipo=r.d>r.a?'D':r.a>r.d?'A':'—';
+  var v=money($('#blzS'+i)),tv=$('#blzT'+i).value;var good=v===want&&tv===tipo;
+  var tr=$('#blzr'+i);tr.querySelectorAll('td')[3].className=good?'':'rbad';tr.querySelectorAll('td')[4].className=good?'':'rbad';
+  if(good){ok++;tr.querySelectorAll('td')[3].className='rok';tr.querySelectorAll('td')[4].className='rok'}
+  if(tipo==='D')sd+=v;else if(tipo==='A')sa+=v});
+ var pct=Math.round(ok/BLZ.rows.length*100);var fb=$('#blzFb');
+ if(ok===BLZ.rows.length){fb.className='fb show ok';
+  fb.innerHTML='🎉 <b>¡Balanza correcta!</b> Los '+BLZ.rows.length+' saldos están bien calculados.<br>✔ Suma de saldos deudores: <b>'+fmt(sd)+'</b> = Suma de saldos acreedores: <b>'+fmt(sa)+'</b>. La partida doble se cumplió.';
+  record('balanza',Math.max(50,100-BLZ.fails*15));addXP(20,'Balanza verificada')}
+ else{fb.className='fb show bad';fb.innerHTML='❌ Hay <b>'+(BLZ.rows.length-ok)+'</b> saldos incorrectos (marcados en rojo). Recuerda: si el Mov. deudor es mayor, el saldo es <b>deudor</b>; si el Mov. acreedor es mayor, es <b>acreedor</b>.';BLZ.fails++}};
+
+/* ================= 8. ESTADO DE RESULTADOS ================= */
+var ER={};
+ER.ORDER=[{cta:'Ventas',sign:1},{cta:'Devoluciones sobre ventas',sign:-1,sub:'Ventas netas'},{cta:'Costo de ventas',sign:-1,sub:'Utilidad bruta'},{cta:'Gastos de venta',sign:-1},{cta:'Gastos de administración',sign:-1,sub:'Utilidad de operación'},{cta:'Otros ingresos',sign:1},{cta:'Gastos financieros',sign:-1,sub:'UTILIDAD NETA'}];
+ER.DISTRACT=['Bancos','Proveedores','Capital social','Clientes','Equipo de cómputo','Hipotecas por pagar'];
+ER.init=function(){intentos('er');
+ var ventas=rnd(500,900)*1000;
+ ER.amt={'Ventas':ventas,'Devoluciones sobre ventas':rnd(10,60)*1000,'Costo de ventas':Math.round(ventas*rnd(55,65)/100),'Gastos de venta':rnd(30,80)*1000,'Gastos de administración':rnd(40,90)*1000,'Otros ingresos':rnd(5,25)*1000,'Gastos financieros':rnd(5,20)*1000};
+ if(ER.amt['Devoluciones sobre ventas']>=ventas)ER.amt['Devoluciones sobre ventas']=Math.round(ventas*0.08);
+ ER.idx=0;ER.miss=0;
+ var chips=shuffle(ER.ORDER.map(function(o){return o.cta}).concat(ER.DISTRACT));
+ var h='<div class="card"><h3>Cuentas disponibles (revueltas)</h3><p style="color:var(--g7);font-size:.88rem">Toca las cuentas <b>en el orden correcto</b> del estado financiero. Los distractores serán rechazados.</p><div class="esf-pool" id="erPool" style="margin-top:10px">';
+ chips.forEach(function(c){h+='<button class="pchip" data-c="'+c+'" onclick="ER.place(this)">'+c+' <small>'+fmt(ER.amt[c]!==undefined?ER.amt[c]:rnd(40,300)*1000)+'</small></button>'});
+ h+='</div></div><div class="card" style="margin-top:14px;background:#fffdf4"><h3 style="text-align:center">Estado de Resultados</h3><p style="text-align:center;color:var(--g5);font-size:.8rem">Del 1 de enero al 31 de diciembre · Cifras en pesos</p><div id="erSheet" style="max-width:560px;margin:12px auto;font-family:var(--mono);font-size:.9rem"><div style="color:var(--g5);text-align:center;padding:20px">El estado se construirá aquí…</div></div></div><div class="fb" id="erFb"></div>';
+ $('#erBox').innerHTML=h};
+ER.place=function(btn){var c=btn.dataset.c;var fb=$('#erFb');
+ if(ER.amt[c]===undefined){btn.classList.add('badplace');setTimeout(function(){btn.classList.remove('badplace')},450);
+  fb.className='fb show bad';fb.innerHTML='❌ <b>'+c+'</b> es una cuenta de balance (activo, pasivo o capital): pertenece al Estado de Situación Financiera, no al de Resultados.';return}
+ var exp=ER.ORDER[ER.idx];
+ if(c!==exp.cta){btn.classList.add('badplace');setTimeout(function(){btn.classList.remove('badplace')},450);ER.miss++;
+  fb.className='fb show bad';fb.innerHTML='❌ Esa cuenta no va en este paso. Pista: después de '+ER.ORDER[ER.idx-1].cta+' sigue una cuenta que '+(exp.sign<0?'resta':'suma')+'. Intenta otra.';return}
+ fb.className='fb';btn.remove();ER.idx++;addXP(3,null);ER.paintSheet();
+ if(ER.idx===ER.ORDER.length)ER.finish()};
+ER.paintSheet=function(){var run=0,h='';
+ for(var i=0;i<ER.idx;i++){var o=ER.ORDER[i];run+=o.sign*ER.amt[o.cta];
+  h+='<div style="display:flex;justify-content:space-between;padding:4px 2px;border-bottom:1px dashed #d8cfa8"><span>'+(o.sign<0?'(−) ':'')+o.cta+'</span><span>'+fmt(ER.amt[o.cta])+'</span></div>';
+  if(o.sub){h+='<div style="display:flex;justify-content:space-between;font-weight:800;padding:6px 2px;background:var(--oros);border-radius:6px;margin:4px 0;color:var(--oro2)"><span>= '+o.sub+'</span><span>'+fmt(run)+'</span></div>'}}
+ $('#erSheet').innerHTML=h||'<div style="color:var(--g5);text-align:center;padding:20px">El estado se construirá aquí…</div>'};
+ER.finish=function(){var run=0;ER.ORDER.forEach(function(o){run+=o.sign*ER.amt[o.cta]});
+ var util=run>=0;var pct=Math.max(55,100-ER.miss*8);record('er',pct);var fb=$('#erFb');
+ fb.className='fb show ok';fb.innerHTML='🎉 <b>¡Estado de Resultados completo!</b><br>Total de ingresos y otros: <b>'+fmt(ER.amt['Ventas']+ER.amt['Otros ingresos'])+'</b> · Total de costos y gastos: <b>'+fmt(ER.amt['Devoluciones sobre ventas']+ER.amt['Costo de ventas']+ER.amt['Gastos de venta']+ER.amt['Gastos de administración']+ER.amt['Gastos financieros'])+'</b><br>'+(util?'📈 <b>UTILIDAD NETA DEL EJERCICIO: '+fmt(run)+'</b>':'📉 <b>PÉRDIDA NETA DEL EJERCICIO: '+fmt(run)+'</b>')+'<br><br><button class="btn btn-azul sm" onclick="bootedFix(\'er\')">↻ Intentar nuevamente</button> <button class="btn btn-verde sm" onclick="go(\'esf\')">Sigue: Estado de Situación Financiera ▶</button>';
+ addXP(15,'Estado de Resultados construido');evalBadges()};
+
+/* ================= 9. ESF ================= */
+var ESF={};
+ESF.DEF=[['Caja','ac',18000],['Bancos','ac',240000],['Inversiones temporales','ac',60000],['Clientes','ac',185000],['Documentos por cobrar','ac',70000],['Deudores diversos','ac',45000],['Inventarios','ac',320000],
+['Terrenos','anc',350000],['Edificios','anc',520000],['Maquinaria y equipo','anc',280000],['Equipo de cómputo','anc',90000],['Mobiliario y equipo de oficina','anc',75000],['Equipo de transporte','anc',130000],['Depreciación acumulada','anc',-145000],
+['Depósitos en garantía','oa',40000],['Papelería y útiles','oa',12000],['Gastos de constitución','oa',28000],
+['Proveedores','pcp',210000],['Acreedores diversos','pcp',85000],['Documentos por pagar (corto plazo)','pcp',120000],['Impuestos por pagar','pcp',60000],['Sueldos por pagar','pcp',45000],
+['Hipotecas por pagar','plp',260000],['Préstamos bancarios a largo plazo','plp',150000],['Documentos por pagar (largo plazo)','plp',90000],
+['Rentas cobradas por anticipado','op',38000],['Impuestos diferidos','op',22000],
+['Capital social','cap',760000],['Utilidades retenidas','cap',300000],['Resultado del ejercicio','cap',178000]];
+ESF.ZONES={ac:['Activo circulante','ac'],anc:['Activo no circulante','ac'],oa:['Otros activos','ac'],pcp:['Pasivo a corto plazo','pas'],plp:['Pasivo a largo plazo','pas'],op:['Otros pasivos','pas'],cap:['Capital contable','cap']};
+ESF.init=function(){intentos('esf');
+ var f=function(){return rnd(88,114)/100};
+ ESF.items=ESF.DEF.map(function(d,i){return {i:i,n:d[0],z:d[1],amt:d[2]>0?Math.round(d[2]*f()/100)*100:-Math.round(-d[2]*f()/100)*100}});
+ var TA=0,TP=0;ESF.items.forEach(function(it){if(it.z[0]==='a')TA+=it.amt;else if(it.z[0]==='p')TP+=it.amt});
+ var TC=TA-TP;
+ var cs=Math.round(TC*0.60/100)*100,ur=Math.round(TC*0.24/100)*100;
+ ESF.items.forEach(function(it){if(it.n==='Capital social')it.amt=cs;if(it.n==='Utilidades retenidas')it.amt=ur;if(it.n==='Resultado del ejercicio')it.amt=TC-cs-ur});
+ ESF.pool=shuffle(ESF.items.map(function(it){return it.i}));ESF.placed={};ESF.sel=null;ESF.tries=0;
+ ESF.render()};
+ESF.render=function(){var pool=ESF.pool.map(function(i){var it=ESF.items[i];return '<button class="pchip'+(ESF.sel===i?' sel':'')+'" data-i="'+i+'" onclick="ESF.pickChip('+i+')">'+it.n+' <small>'+fmt(it.amt)+'</small></button>'}).join('');
+ var cols={ac:'',pas:'',cap:''};
+ Object.keys(ESF.ZONES).forEach(function(z){var info=ESF.ZONES[z];var chips=ESF.items.filter(function(it){return ESF.placed[it.i]===z}).map(function(it){return '<button class="pchip" onclick="ESF.unplace('+it.i+')">'+it.n+' <small>'+fmt(it.amt)+'</small></button>'}).join('');
+  var sum=ESF.items.filter(function(it){return ESF.placed[it.i]===z}).reduce(function(a,it){return a+it.amt},0);
+  cols[info[1]]+='<div class="zone" onclick="ESF.dropTo(\''+z+'\')"><h5>'+info[0]+'<span class="zsum">'+fmt(sum)+'</span></h5>'+chips+'</div>'});
+ var placed=Object.keys(ESF.placed).length;
+ var h='<div class="card"><h3>Cuentas por clasificar ('+(ESF.items.length-placed)+' pendientes) <span style="float:right;font-size:.8rem;color:var(--g5)">1️⃣ toca una cuenta · 2️⃣ toca la zona</span></h3><div class="esf-pool">'+(pool||'<i style="color:var(--g5)">Todas las cuentas están colocadas ✔</i>')+'</div></div>';
+ h+='<div class="esf-cols"><div class="esf-col act"><h4>ACTIVO</h4>'+cols.ac+'</div><div class="esf-col pas"><h4>PASIVO</h4>'+cols.pas+'</div><div class="esf-col cap"><h4>CAPITAL CONTABLE</h4>'+cols.cap+'</div></div>';
+ h+='<br><button class="btn btn-verde" onclick="ESF.check()">✔ Revisar respuesta</button> <button class="btn btn-ghost" onclick="ESF.init()">↻ Reiniciar actividad</button><div class="fb" id="esfFb"></div><div class="esf-tot" id="esfTot"></div>';
+ $('#esfBox').innerHTML=h};
+ESF.pickChip=function(i){ESF.sel=ESF.sel===i?null:i;ESF.render()};
+ESF.dropTo=function(z){if(ESF.sel===null)return toast('⚠️ Primero selecciona una cuenta del área superior.','red');
+ var i=ESF.sel;var k=ESF.pool.indexOf(i);if(k>=0)ESF.pool.splice(k,1);ESF.placed[i]=z;ESF.sel=null;ESF.render()};
+ESF.unplace=function(i){delete ESF.placed[i];ESF.pool.push(i);ESF.render()};
+ESF.check=function(){if(ESF.pool.length>0)return toast('⚠️ Aún faltan '+ESF.pool.length+' cuentas por colocar.','red');
+ ESF.tries++;var bad=ESF.items.filter(function(it){return ESF.placed[it.i]!==it.z});
+ var fb=$('#esfFb');
+ if(bad.length){fb.className='fb show bad';fb.innerHTML='❌ Hay <b>'+bad.length+'</b> cuenta(s) mal colocada(s): '+bad.map(function(b){return '<b>'+b.n+'</b> (devuélvela y colócala de nuevo)' }).join(', ')+'.';
+  bad.forEach(function(b){var el=$$('[onclick="ESF.unplace('+b.i+')"]');el.forEach(function(e){e.classList.add('badplace')})});return}
+ var TA=0,TP=0,TC=0;ESF.items.forEach(function(it){if(it.z[0]==='a')TA+=it.amt;else if(it.z[0]==='p')TP+=it.amt;else TC+=it.amt});
+ fb.className='fb show ok';fb.innerHTML='🎉 <b>¡Las 30 cuentas están correctamente clasificadas!</b>';
+ var pct=ESF.tries===1?100:ESF.tries===2?85:70;record('esf',pct);
+ $('#esfTot').className='esf-tot show';
+ $('#esfTot').innerHTML='<div class="eq-strip"><span class="v a">'+fmt(TA)+'</span><span class="s">=</span><span class="v p">'+fmt(TP)+'</span><span class="s">+</span><span class="v c">'+fmt(TC)+'</span><span class="eqok" style="margin:0">⚖ ¡Ecuación cumplida!</span></div>'+
+ '<div class="czkpi"><div><b>'+fmt(TA)+'</b><small>Total activo</small></div><div><b>'+fmt(TP)+'</b><small>Total pasivo</small></div><div><b>'+fmt(TC)+'</b><small>Total capital</small></div><div><b>'+fmt(TP+TC)+'</b><small>Pasivo + capital</small></div></div>';
+ addXP(25,'Estado de Situación Financiera construido');evalBadges()};
+
+/* ================= 10. RETO ================= */
+var POOL=[
+{q:'¿Cuál es la finalidad principal de la contabilidad?',o:['Producir información útil y confiable para la toma de decisiones','Calcular únicamente los impuestos','Controlar al personal de la empresa','Diseñar los productos que se venderán'],a:0,fb:'La contabilidad registra, clasifica y resume las operaciones para generar información útil.'},
+{q:'¿Quién es un usuario EXTERNO de la información financiera?',o:['El gerente general','Las instituciones bancarias','El consejo de administración','El jefe de contabilidad'],a:1,fb:'Los bancos deciden con ella si otorgan créditos: son usuarios externos.'},
+{q:'El conjunto de bienes y derechos propiedad de la entidad se denomina…',o:['Pasivo','Capital contable','Activo','Ingreso'],a:2,fb:'El activo reúne todo lo que la empresa tiene y los derechos de cobro.'},
+{q:'Las deudas y obligaciones a cargo de la entidad corresponden al…',o:['Pasivo','Activo','Capital social','Resultado del ejercicio'],a:0,fb:'El pasivo es todo lo que la empresa debe a terceros.'},
+{q:'El capital contable representa…',o:['Las deudas con los bancos','El efectivo en caja','Las ventas del mes','Las aportaciones de los socios más los resultados acumulados'],a:3,fb:'Capital = lo que realmente pertenece a los dueños después de pagar deudas.'},
+{q:'¿Cuál de las siguientes cuentas es un activo circulante?',o:['Terrenos','Clientes','Hipotecas por pagar','Capital social'],a:1,fb:'Clientes se cobrará en el corto plazo: es activo circulante.'},
+{q:'Los edificios y terrenos se clasifican como…',o:['Activo no circulante','Activo circulante','Otros pasivos','Gastos'],a:0,fb:'Son bienes de uso permanente: activo no circulante.'},
+{q:'¿Cuál es un ejemplo de pasivo a largo plazo?',o:['Proveedores','Sueldos por pagar','Hipotecas por pagar','Ventas'],a:2,fb:'Las hipotecas se pagan en plazos mayores a un año.'},
+{q:'Las rentas cobradas por anticipado se clasifican como…',o:['Ingresos','Otros pasivos','Capital contable','Activo circulante'],a:1,fb:'Cobraste algo que aún no prestas: es una obligación de naturaleza especial (otros pasivos).'},
+{q:'¿Qué naturaleza tiene la cuenta de Ventas?',o:['Deudora','Mixta','Acreedora','No tiene naturaleza'],a:2,fb:'Los ingresos aumentan abonándose: naturaleza acreedora.'},
+{q:'Las cuentas de activo tienen naturaleza…',o:['Acreedora','Deudora','Variable','Cero'],a:1,fb:'Los activos aumentan con cargos: naturaleza deudora.'},
+{q:'Un CARGO se registra en…',o:['El lado derecho (Haber)','El lado izquierdo (Debe)','El centro de la cuenta T','El pie de la cuenta T'],a:1,fb:'Cargar = anotar en el Debe, el lado izquierdo.'},
+{q:'Un ABONO se registra en…',o:['El Haber, lado derecho','El Debe, lado izquierdo','Fuera de la cuenta T','En la balanza'],a:0,fb:'Abonar = anotar en el Haber, el lado derecho.'},
+{q:'Cuando una cuenta de ACTIVO se carga, su saldo…',o:['Disminuye','Desaparece','Aumenta','No cambia'],a:2,fb:'Activo + cargo = aumento.'},
+{q:'Cuando una cuenta de PASIVO se abona, su saldo…',o:['Aumenta','Disminuye','Se vuelve deudor','Se cancela'],a:0,fb:'Pasivo + abono = aumento de la deuda.'},
+{q:'El principio que exige registrar todo cargo con su abono correspondiente se llama…',o:['Partida doble','Devengación contable','Consistencia','Materialidad'],a:0,fb:'“A todo cargo corresponde un abono”: partida doble.'},
+{q:'La ecuación contable básica es…',o:['Activo = Ingresos − Gastos','Pasivo = Activo + Capital','Capital = Activo + Pasivo','Activo = Pasivo + Capital'],a:3,fb:'Todo lo que se tiene fue financiado por terceros o por los dueños.'},
+{q:'Si el Activo es $200,000 y el Pasivo $80,000, el Capital contable es…',o:['$280,000','$120,000','$80,000','$200,000'],a:1,fb:'Capital = Activo − Pasivo = 200,000 − 80,000 = $120,000.'},
+{q:'La compra de mercancía A CRÉDITO se registra…',o:['Cargo a Inventarios y abono a Proveedores','Cargo a Bancos y abono a Ventas','Cargo a Proveedores y abono a Bancos','Cargo a Capital y abono a Inventarios'],a:0,fb:'Llega mercancía (cargo) y nace la deuda con el proveedor (abono).'},
+{q:'El pago de una deuda a proveedores con transferencia se registra…',o:['Cargo a Bancos y abono a Proveedores','Cargo a Proveedores y abono a Bancos','Cargo a Ventas y abono a Caja','Cargo a Inventarios y abono a Proveedores'],a:1,fb:'La deuda baja (cargo a pasivo) y sale el dinero (abono a activo).'},
+{q:'Las operaciones se registran cronológicamente en el…',o:['Estado de Resultados','Libro diario','Balance general','Libro de actas'],a:1,fb:'El libro diario guarda los asientos en orden de fecha.'},
+{q:'La Cuenta T sirve principalmente para…',o:['Calcular impuestos','Firmar contratos','Visualizar cargos, abonos y el saldo de una cuenta','Registrar únicamente gastos'],a:2,fb:'Es la representación gráfica de una cuenta del libro mayor.'},
+{q:'Si una cuenta tiene movimientos deudores por $50,000 y acreedores por $20,000, su saldo es…',o:['Acreedor $30,000','Deudor $70,000','Deudor $30,000','Cero'],a:2,fb:'50,000 − 20,000 = 30,000 y el Debe es mayor: saldo deudor.'},
+{q:'La balanza de comprobación verifica principalmente que…',o:['Las ventas sean mayores que los gastos','La suma de cargos sea igual a la suma de abonos','El activo sea mayor que el pasivo','Existan utilidades'],a:1,fb:'Es el filtro que detecta errores de la partida doble.'},
+{q:'El Estado de Resultados muestra…',o:['Los activos y pasivos a una fecha','Las cuentas por cobrar','Ingresos, costos, gastos y la utilidad del periodo','Únicamente el efectivo'],a:2,fb:'Es la “película” del desempeño del periodo.'},
+{q:'La utilidad del ejercicio se obtiene básicamente como…',o:['Activo − Pasivo','Ingresos − Gastos','Ventas + Gastos','Capital × 2'],a:1,fb:'Utilidad = Ingresos − Gastos.'},
+{q:'El Estado de Situación Financiera presenta…',o:['Activos, pasivos y capital a una fecha determinada','Solo las ventas del año','Los sueldos por pagar únicamente','El presupuesto anual'],a:0,fb:'Es la “fotografía” financiera de la entidad.'},
+{q:'¿Cuál es el primer paso del ciclo contable?',o:['Elaborar estados financieros','El cierre de cuentas','El registro de la operación en el libro diario','La balanza de comprobación'],a:2,fb:'Todo inicia cuando ocurre y se registra la operación.'},
+{q:'¿Cuál de estas cuentas pertenece a RESULTADOS?',o:['Bancos','Proveedores','Capital social','Gastos de venta'],a:3,fb:'Los gastos de venta afectan la utilidad del periodo.'},
+{q:'Si el total de cargos de la balanza es $400,000, el total de abonos debe ser…',o:['$200,000','$400,000','$800,000','Cualquier cantidad'],a:1,fb:'Por la partida doble, ambas sumas deben ser iguales.'},
+{q:'“Devoluciones sobre ventas” tiene naturaleza…',o:['Deudora, aunque es cuenta de ingresos','Acreedora, como todas las de activo','De capital','De pasivo'],a:0,fb:'Resta a las ventas, por eso se carga: naturaleza deudora.'},
+{q:'Un depósito en garantía entregado al arrendador se clasifica como…',o:['Pasivo a corto plazo','Otros activos','Gasto de venta','Capital'],a:1,fb:'Es un derecho de naturaleza especial: otros activos.'}];
+var RT={};
+RT.init=function(){intentos('reto');RT.qs=shuffle(POOL).slice(0,12).map(function(p){var idx=[0,1,2,3];var ord=shuffle(idx);
+ return {q:p.q,fb:p.fb,a:ord.indexOf(p.a),opts:ord.map(function(i){return p.o[i]})}});
+ RT.i=0;RT.ok=0;RT.render()};
+RT.render=function(){var b=$('#rtBox');
+ if(RT.i>=RT.qs.length){var pct=Math.round(RT.ok/RT.qs.length*100);record('reto',pct);
+  var msg=pct>=90?'🌟 ¡Excelente dominio de los fundamentos de contabilidad!':pct>=80?'👏 ¡Muy buen desempeño!':pct>=70?'👍 Buen desempeño, continúa practicando.':'📚 Se recomienda repasar los contenidos del módulo Aprende.';
+  b.innerHTML='<div class="endcard"><div class="big">'+(pct>=90?'🏆':pct>=70?'🎖️':'📖')+'</div><h3>Reto terminado</h3>'+
+  '<div class="endstats"><div class="st"><b style="color:'+(pct>=70?'var(--ve7)':'var(--rojo)')+'">'+pct+'%</b><small>Calificación</small></div><div class="st"><b style="color:var(--ve7)">'+RT.ok+'</b><small>Correctas</small></div><div class="st"><b style="color:var(--rojo)">'+(RT.qs.length-RT.ok)+'</b><small>Incorrectas</small></div></div>'+
+  '<div>'+starsHTML(starsOf(pct))+'</div><p style="font-size:1.05rem;font-weight:700;color:var(--az7)">'+msg+'</p><br>'+
+  '<button class="btn btn-verde" onclick="bootedFix(\'reto\')">↻ Intentar nuevamente</button> <button class="btn btn-ghost" onclick="go(\'home\')">🏠 Inicio</button></div>';return}
+ var q=RT.qs[RT.i];
+ var h='<div class="hud"><span class="pill">Pregunta <b>'+(RT.i+1)+'/'+RT.qs.length+'</b></span><div class="pbar"><i style="width:'+Math.round(RT.i/RT.qs.length*100)+'%"></i></div><span class="pill">Aciertos: <b>'+RT.ok+'</b></span></div>';
+ h+='<div class="card"><p class="rt-q">'+q.q+'</p><div class="rt-opts">';
+ q.opts.forEach(function(o,i){h+='<button class="opt" data-i="'+i+'" onclick="RT.ans(this)">'+String.fromCharCode(65+i)+') '+o+'</button>'});
+ h+='</div><div class="fb" id="rtFb"></div></div>';b.innerHTML=h};
+RT.ans=function(btn){var q=RT.qs[RT.i];var i=+btn.dataset.i;var ok=i===q.a;
+ $$('.rt-opts .opt').forEach(function(b){b.disabled=true;if(+b.dataset.i===q.a)b.classList.add('right');else if(b===btn&&!ok)b.classList.add('wrong')});
+ if(ok){RT.ok++;addXP(6,null)}
+ var fb=$('#rtFb');fb.className='fb show '+(ok?'ok':'bad');
+ fb.innerHTML=(ok?'✅ <b>¡Correcto!</b> ':'❌ <b>Incorrecto.</b> La respuesta era <b>'+String.fromCharCode(65+q.a)+')</b>. ')+q.fb+
+ '<br><br><button class="btn btn-azul sm" onclick="RT.i++;RT.render()">'+(RT.i+1>=RT.qs.length?'Ver resultado final ▶':'Siguiente pregunta ▶')+'</button>'};
+
+/* ================= 11. CASO INTEGRADOR ================= */
+var CZ={};
+CZ.BASE=[
+ {txt:'Los socios aportan {0} en efectivo mediante transferencia bancaria.',lines:[['Bancos','c',150000],['Capital social','a',150000]]},
+ {txt:'Compra de mercancía al contado por {0}, pagada con transferencia.',lines:[['Inventarios','c',60000],['Bancos','a',60000]]},
+ {txt:'Compra de mercancía a crédito por {0}.',lines:[['Inventarios','c',45000],['Proveedores','a',45000]]},
+ {txt:'Venta de mercancía al contado por {0}; se cobra con transferencia.',lines:[['Bancos','c',80000],['Ventas','a',80000]]},
+ {txt:'Registro del costo de la mercancía vendida en la operación anterior: {0}.',lines:[['Costo de ventas','c',48000],['Inventarios','a',48000]]},
+ {txt:'Venta de mercancía a crédito a un cliente por {0}.',lines:[['Clientes','c',55000],['Ventas','a',55000]]},
+ {txt:'Costo de la mercancía vendida a crédito: {0}.',lines:[['Costo de ventas','c',33000],['Inventarios','a',33000]]},
+ {txt:'Se paga a los proveedores {0} con transferencia bancaria.',lines:[['Proveedores','c',30000],['Bancos','a',30000]]},
+ {txt:'Un cliente paga {0} de su adeudo mediante transferencia.',lines:[['Bancos','c',25000],['Clientes','a',25000]]},
+ {txt:'Compra de equipo de cómputo por {0}, pagado con transferencia.',lines:[['Equipo de cómputo','c',40000],['Bancos','a',40000]]},
+ {txt:'Pago de la renta del local por {0}.',lines:[['Gastos de administración','c',12000],['Bancos','a',12000]]},
+ {txt:'Pago de sueldos: {0} al personal administrativo y {1} a los vendedores.',lines:[['Gastos de administración','c',10000],['Gastos de venta','c',8000],['Bancos','a',18000]]},
+ {txt:'El banco otorga un préstamo por {0}, depositado en la cuenta de la empresa.',lines:[['Bancos','c',50000],['Documentos por pagar','a',50000]]}];
+CZ.NAMES=['Identificación de cuentas','Cargo y abono','Libro diario','Cuentas T','Balanza','Estado de Resultados','Situación Financiera'];
+CZ.init=function(){var f=pick([0.8,0.9,1,1.1,1.2]);
+ CZ.ops=CZ.BASE.map(function(o){var lines=o.lines.map(function(l){return [l[0],l[1],Math.round(l[2]*f)]});
+  var cargos=lines.filter(function(l){return l[1]==='c'}).reduce(function(a,l){return a+l[2]},0);
+  lines.forEach(function(l){if(l[1]==='a')l[2]=Math.round(l[2]*f)+(cargos-Math.round(cargos))});
+  // ajusta abono para que cuadre con cargos
+  var sumaC=lines.filter(function(l){return l[1]==='c'}).reduce(function(a,l){return a+l[2]},0);
+  var abonos=lines.filter(function(l){return l[1]==='a'});
+  if(abonos.length===1)abonos[0][2]=sumaC;
+  var txt=o.txt;lines.forEach(function(l,i){txt=txt.replace('{'+i+'}',fmt(l[2]))});
+  return {txt:txt,lines:lines}});
+ CZ.e1={};CZ.e2={};CZ.e3={};CZ.fails=S.casoFails||0;CZ.help=S.casoHelp||0;CZ.stage=Math.min(7,Math.max(1,S.casoEtapa||1));
+ CZ.doneCz={};CZ.selOp=null;CZ.render()};
+CZ.CTAS=['Bancos','Clientes','Inventarios','Equipo de cómputo','Proveedores','Documentos por pagar','Capital social','Ventas','Costo de ventas','Gastos de administración','Gastos de venta'];
+CZ.ledger=function(){var L={};CZ.ops.forEach(function(o){o.lines.forEach(function(l){L[l[0]]=L[l[0]]||{d:0,a:0};if(l[1]==='c')L[l[0]].d+=l[2];else L[l[0]].a+=l[2]})});return L};
+CZ.tot=function(){var L=CZ.ledger();var ta=0,tp=0;Object.keys(L).forEach(function(c){var s=L[c].d-L[c].a;
+ if(['Bancos','Clientes','Inventarios','Equipo de cómputo'].indexOf(c)>=0)ta+=s;
+ else if(['Proveedores','Documentos por pagar'].indexOf(c)>=0)tp+=-s});
+ var cap=L['Capital social'].a-L['Capital social'].d+(L['Ventas'].a-L['Costo de ventas'].d-(L['Gastos de administración'].d)-(L['Gastos de venta'].d));
+ return {ta:ta,tp:tp,cap:cap}};
+CZ.save=function(){S.casoEtapa=CZ.stage;S.casoFails=CZ.fails;S.casoHelp=CZ.help;save()};
+CZ.render=function(){var h='<div class="stepper">';
+ CZ.NAMES.forEach(function(n,i){var st=(i+1<CZ.stage)?'dn':(i+1===CZ.stage?'cur':'');
+  h+='<div class="step '+st+'"><b>'+(i+1<CZ.stage?'✓':(i+1))+'</b>'+n+'</div>'});
+ h+='</div><div class="czkpi"><div><b>Empresa</b><small>Distribuidora “El Faro”</small></div><div><b>'+CZ.ops.length+'</b><small>Operaciones</small></div><div><b>Etapa '+CZ.stage+'/7</b><small>Avance</small></div><div><b>'+CZ.fails+'</b><small>Errores acumulados</small></div></div><div id="czStage"></div>';
+ $('#czBox').innerHTML=h;CZ.paintStage()};
+CZ.fbStage=function(ok,msg){var fb=$('#czFb');fb.className='fb show '+(ok?'ok':'bad');fb.innerHTML=msg};
+CZ.verifyBtn='<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn btn-verde" onclick="CZ.verify()">✔ Verificar etapa</button><button class="btn btn-ghost" onclick="CZ.solution()">💡 Ver solución de la etapa</button></div><div class="fb" id="czFb"></div>';
+CZ.paintStage=function(){var el=$('#czStage');var s=CZ.stage;
+ if(s===1){var h='<div class="card"><h3>Etapa 1 · Identifica las cuentas que intervienen</h3><p style="color:var(--g7);font-size:.9rem">Para cada operación, toca las cuentas que participan. Luego verifica.</p></div>';
+  CZ.ops.forEach(function(o,i){h+='<div class="czop" id="cz1-'+i+'"><div class="t"><span class="n">'+(i+1)+'</span>'+o.txt+'</div><div class="chips">'+CZ.CTAS.map(function(c){return '<button class="chip'+(CZ.e1[i]&&CZ.e1[i][c]?' on':'')+'" onclick="CZ.t1('+i+',\''+c+'\',this)">'+c+'</button>'}).join('')+'</div><div class="czfb" id="cz1f-'+i+'"></div></div>'});
+  el.innerHTML=h+CZ.verifyBtn}
+ if(s===2){var h='<div class="card"><h3>Etapa 2 · ¿Se carga o se abona?</h3><p style="color:var(--g7);font-size:.9rem">Para cada cuenta que interviene, decide si se le hace CARGO (Debe) o ABONO (Haber).</p></div>';
+  CZ.ops.forEach(function(o,i){h+='<div class="czop" id="cz2-'+i+'"><div class="t"><span class="n">'+(i+1)+'</span>'+o.txt+'</div>';
+   o.lines.forEach(function(l){h+='<div class="czrow"><span class="cta">'+l[0]+'</span><button class="chip'+(CZ.e2[i]&&CZ.e2[i][l[0]]==='c'?' cargo':'')+'" onclick="CZ.t2('+i+',\''+l[0]+'\',\'c\',this)">⬅ CARGO</button><button class="chip'+(CZ.e2[i]&&CZ.e2[i][l[0]]==='a'?' abono':'')+'" onclick="CZ.t2('+i+',\''+l[0]+'\',\'a\',this)">ABONO ➡</button></div>'});
+   h+='<div class="czfb" id="cz2f-'+i+'"></div></div>'});
+  el.innerHTML=h+CZ.verifyBtn}
+ if(s===3){var n=0;var h='<div class="card"><h3>Etapa 3 · Libro diario</h3><p style="color:var(--g7);font-size:.9rem">Captura el importe de cada línea del asiento (las cuentas y lados ya están definidos por tus etapas anteriores).</p><div class="asiento" style="margin-top:10px"><div class="arow h"><span>#</span><span>Cuenta</span><span>Lado</span><span style="text-align:right">Importe</span></div>';
+  CZ.ops.forEach(function(o,i){o.lines.forEach(function(l,j){n++;
+   h+='<div class="arow"><span>'+(i+1)+'.'+(j+1)+'</span><span class="'+(l[1]==='c'?'hb':'ab')+'">'+l[0]+'</span><span><span class="side '+l[1]+'">'+(l[1]==='c'?'CARGO':'ABONO')+'</span></span><span class="amt"><input class="jinput" id="cz3-'+i+'-'+j+'" type="number" min="0" value="'+((CZ.e3[i]&&CZ.e3[i][j]!==undefined)?CZ.e3[i][j]:'')+'"></span></div>'})});
+  h+='</div></div>';el.innerHTML=h+CZ.verifyBtn}
+ if(s===4){var L=CZ.ledger();var h='<div class="card"><h3>Etapa 4 · Cuentas T (libro mayor)</h3><p style="color:var(--g7);font-size:.9rem">El pase al mayor ya está hecho. Calcula el <b>saldo final</b> de cada cuenta e indica si es deudor o acreedor.</p></div><div class="tgrid">';
+  Object.keys(L).forEach(function(c){var v=L[c];var sd=Math.max(0,v.d-v.a),sa=Math.max(0,v.a-v.d);
+   h+='<div class="tacc" id="cz4c-'+c.replace(/\s/g,'')+'"><div class="tname">'+c+'</div><div class="tcols"><div class="col"><b>DEBE</b><div class="tent"><span>'+fmt(v.d)+'</span></div></div><div class="col"><b>HABER</b><div class="tent"><span>'+fmt(v.a)+'</span></div></div></div>'+
+   '<div class="czrow" style="border:none"><span style="font-size:.8rem;font-weight:700">Saldo:</span><input class="jinput" id="cz4s-'+c.replace(/\s/g,'')+'" type="number" min="0"><select class="sel" id="cz4t-'+c.replace(/\s/g,'')+'" style="padding:7px"><option>D</option><option>A</option></select></div></div>'});
+  el.innerHTML=h+'</div>'+CZ.verifyBtn}
+ if(s===5){var L=CZ.ledger();var smd=0,sma=0,sdd=0,saa=0;
+  var rows=Object.keys(L).map(function(c){var v=L[c];smd+=v.d;sma+=v.a;var sd=Math.max(0,v.d-v.a),sa=Math.max(0,v.a-v.d);sdd+=sd;saa+=sa;
+   return '<tr><td class="l">'+c+'</td><td>'+fmt(v.d)+'</td><td>'+fmt(v.a)+'</td><td>'+fmt(sd||sa||0)+'</td><td>'+(sd>=sa&&sd>0?'Deudor':sa>0?'Acreedor':'—')+'</td></tr>'}).join('');
+  el.innerHTML='<div class="card"><h3>Etapa 5 · Balanza de comprobación</h3><p style="color:var(--g7);font-size:.9rem">Con los datos ya mayorizados, calcula las <b>sumas totales</b> de cada columna.</p><div class="scrollx" style="margin-top:10px"><table class="btable"><tr><th style="text-align:left">Cuenta</th><th>Mov. deudor</th><th>Mov. acreedor</th><th>Saldo</th><th>Tipo</th></tr>'+rows+'</table></div>'+
+  '<div class="czrow" style="margin-top:12px"><span class="cta">Suma de movimientos deudores</span><input class="jinput" id="cz5a" type="number"></div><div class="czrow"><span class="cta">Suma de movimientos acreedores</span><input class="jinput" id="cz5b" type="number"></div><div class="czrow"><span class="cta">Suma de saldos deudores</span><input class="jinput" id="cz5c" type="number"></div><div class="czrow"><span class="cta">Suma de saldos acreedores</span><input class="jinput" id="cz5d" type="number"></div></div>'+CZ.verifyBtn;
+  CZ.exp5=[smd,sma,sdd,saa]}
+ if(s===6){var L=CZ.ledger();var ing=L['Ventas'].a,cv=L['Costo de ventas'].d,ga=L['Gastos de administración'].d,gv=L['Gastos de venta'].d;
+  el.innerHTML='<div class="card"><h3>Etapa 6 · Estado de Resultados</h3><p style="color:var(--g7);font-size:.9rem">Cuentas de resultados del periodo:</p><div class="czkpi"><div><b>'+fmt(ing)+'</b><small>Ventas</small></div><div><b>'+fmt(cv)+'</b><small>Costo de ventas</small></div><div><b>'+fmt(ga)+'</b><small>Gastos de admin.</small></div><div><b>'+fmt(gv)+'</b><small>Gastos de venta</small></div></div>'+
+  '<div class="czrow"><span class="cta">Total de ingresos</span><input class="jinput" id="cz6a" type="number"></div><div class="czrow"><span class="cta">Total costo de ventas</span><input class="jinput" id="cz6b" type="number"></div><div class="czrow"><span class="cta">Total de gastos de operación</span><input class="jinput" id="cz6c" type="number"></div><div class="czrow"><span class="cta">Utilidad o pérdida neta</span><input class="jinput" id="cz6d" type="number"></div></div>'+CZ.verifyBtn;
+  CZ.exp6=[ing,cv,ga+gv,ing-cv-ga-gv]}
+ if(s===7){var t=CZ.tot();
+  el.innerHTML='<div class="card"><h3>Etapa 7 · Estado de Situación Financiera</h3><p style="color:var(--g7);font-size:.9rem">Calcula los grandes totales con los saldos del mayor (Activo: Bancos, Clientes, Inventarios, Equipo de cómputo · Pasivo: Proveedores, Documentos por pagar · Capital: Capital social + resultado del ejercicio).</p>'+
+  '<div class="czrow"><span class="cta">Total de Activo</span><input class="jinput" id="cz7a" type="number"></div><div class="czrow"><span class="cta">Total de Pasivo</span><input class="jinput" id="cz7b" type="number"></div><div class="czrow"><span class="cta">Total de Capital contable</span><input class="jinput" id="cz7c" type="number"></div><div class="czrow"><span class="cta">Total Pasivo + Capital</span><input class="jinput" id="cz7d" type="number"></div></div>'+CZ.verifyBtn;
+  CZ.exp7=[t.ta,t.tp,t.cap,t.tp+t.cap]}};
+CZ.t1=function(i,c,btn){CZ.e1[i]=CZ.e1[i]||{};CZ.e1[i][c]=!CZ.e1[i][c];btn.classList.toggle('on')};
+CZ.t2=function(i,c,side,btn){CZ.e2[i]=CZ.e2[i]||{};CZ.e2[i][c]=side;
+ var par=btn.parentNode;par.querySelectorAll('.chip').forEach(function(b){b.className='chip'});btn.classList.add(side==='c'?'cargo':'abono')};
+CZ.verify=function(){var s=CZ.stage;
+ function pass(){CZ.doneCz[s]=1;addXP(CZ.fails===0?15:8,'Etapa '+s+' superada');CZ.save();
+  if(s<7){var fb=$('#czFb');fb.innerHTML+='<br><br><button class="btn btn-oro" onclick="CZ.next()">Continuar a la etapa '+(s+1)+' ▶</button>'}else CZ.finish()}
+ if(s===1){var all=true;CZ.ops.forEach(function(o,i){var want=o.lines.map(function(l){return l[0]});var got=Object.keys(CZ.e1[i]||{}).filter(function(c){return CZ.e1[i][c]});
+   var ok=want.length===got.length&&want.every(function(c){return got.indexOf(c)>=0});
+   var f=$('#cz1f-'+i);f.className='czfb '+(ok?'ok':'bad');f.textContent=ok?'✔ Correcto':'✖ Revisa las cuentas de esta operación';if(!ok)all=false});
+  if(all){CZ.fbStage(true,'🎉 ¡Todas las operaciones tienen sus cuentas correctas!');pass()}else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ Hay operaciones con cuentas incorrectas o incompletas. Cada operación afecta exactamente las cuentas de su asiento.')}}
+ if(s===2){var all=true;CZ.ops.forEach(function(o,i){var ok=true;o.lines.forEach(function(l){if(!CZ.e2[i]||CZ.e2[i][l[0]]!==l[1])ok=false});
+   var f=$('#cz2f-'+i);f.className='czfb '+(ok?'ok':'bad');f.textContent=ok?'✔ Correcto':'✖ Algún lado está mal (pista: activos y gastos aumentan cargando)';if(!ok)all=false});
+  if(all){CZ.fbStage(true,'🎉 ¡Cargo y abono perfectos en las '+CZ.ops.length+' operaciones!');pass()}else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ Revisa los lados marcados en rojo.')}}
+ if(s===3){var all=true,nbad=0;CZ.ops.forEach(function(o,i){o.lines.forEach(function(l,j){var v=money($('#cz3-'+i+'-'+j));CZ.e3[i]=CZ.e3[i]||{};CZ.e3[i][j]=v;
+   var inp=$('#cz3-'+i+'-'+j);if(v!==l[2]){all=false;nbad++;inp.style.borderColor='var(--rojo)'}else inp.style.borderColor='var(--ve5)'})});
+  if(all){CZ.fbStage(true,'🎉 ¡Libro diario registrado sin errores! La suma de cargos es igual a la de abonos en cada asiento.');pass()}
+  else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ '+nbad+' importe(s) incorrecto(s) (marcados en rojo). Lee con atención el monto indicado en cada operación.')}}
+ if(s===4){var L=CZ.ledger();var all=true;Object.keys(L).forEach(function(c){var k=c.replace(/\s/g,'');var v=L[c];
+   var want=Math.abs(v.d-v.a),tipo=v.d>=v.a?'D':'A';var got=money($('#cz4s-'+k)),gt=$('#cz4t-'+k).value;
+   var card=$('#cz4c-'+k);card.classList.remove('okb','badb');
+   if(got===want&&gt===tipo)card.classList.add('okb');else{card.classList.add('badb');all=false}});
+  if(all){CZ.fbStage(true,'🎉 ¡Saldos de todas las cuentas T correctos!');pass()}else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ Hay saldos o naturalezas incorrectas (tarjetas en rojo). Saldo = |Mov. deudor − Mov. acreedor|.')}}
+ if(s===5){var got=[money($('#cz5a')),money($('#cz5b')),money($('#cz5c')),money($('#cz5d'))];
+  var ok=got.every(function(v,i){return v===CZ.exp5[i]});
+  if(ok){CZ.fbStage(true,'🎉 ¡Balanza cuadrada! Movimientos deudores = movimientos acreedores ('+fmt(CZ.exp5[0])+') y saldos deudores = saldos acreedores ('+fmt(CZ.exp5[2])+').');pass()}
+  else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ Alguna suma no coincide. Suma columna por columna la tabla de arriba.')}}
+ if(s===6){var got=[money($('#cz6a')),money($('#cz6b')),money($('#cz6c')),money($('#cz6d'))];
+  var ok=got.every(function(v,i){return v===CZ.exp6[i]});
+  if(ok){CZ.fbStage(true,'🎉 ¡Correcto! La empresa obtuvo una <b>utilidad neta de '+fmt(CZ.exp6[3])+'</b> (Ingresos '+fmt(CZ.exp6[0])+' − Costo '+fmt(CZ.exp6[1])+' − Gastos '+fmt(CZ.exp6[2])+').');pass()}
+  else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ Revisa: Total ingresos = Ventas · Gastos de operación = administración + venta · Utilidad = ingresos − costo − gastos.')}}
+ if(s===7){var got=[money($('#cz7a')),money($('#cz7b')),money($('#cz7c')),money($('#cz7d'))];
+  var ok=got.every(function(v,i){return v===CZ.exp7[i]});
+  if(ok){CZ.fbStage(true,'🎉 ¡Estado de Situación Financiera correcto! <b>'+fmt(CZ.exp7[0])+' = '+fmt(CZ.exp7[1])+' + '+fmt(CZ.exp7[2])+'</b> ⚖');pass()}
+  else{CZ.fails++;CZ.save();CZ.fbStage(false,'❌ Algún total no coincide. Activo = Bancos + Clientes + Inventarios + Equipo · Pasivo = Proveedores + Documentos por pagar · Capital = Capital social + utilidad.')}}};
+CZ.next=function(){CZ.stage++;CZ.save();CZ.render();window.scrollTo({top:0,behavior:'smooth'})};
+CZ.solution=function(){var s=CZ.stage;
+ if(s===1)CZ.ops.forEach(function(o,i){CZ.e1[i]={};o.lines.forEach(function(l){CZ.e1[i][l[0]]=true})});
+ if(s===2)CZ.ops.forEach(function(o,i){CZ.e2[i]={};o.lines.forEach(function(l){CZ.e2[i][l[0]]=l[1]})});
+ if(s===3)CZ.ops.forEach(function(o,i){CZ.e3[i]=[];o.lines.forEach(function(l,j){CZ.e3[i][j]=l[2]})});
+ CZ.help++;CZ.fails+=2;CZ.save();CZ.paintStage();
+ if(s===3)CZ.ops.forEach(function(o,i){o.lines.forEach(function(l,j){$('#cz3-'+i+'-'+j).value=l[2]})});
+ toast('💡 Solución aplicada en la etapa '+s+'. Continúa con “Verificar etapa”.','gold')};
+CZ.finish=function(){var score=CZ.fails+CZ.help*2;var pct=score===0?100:score<=4?85:70;
+ record('caso',pct);
+ var sparks='';for(var i=0;i<12;i++)sparks+='<span class="spark" style="left:'+(5+i*8)+'%;animation-delay:'+(i*0.18)+'s">'+pick(['✨','⭐','💰','📊'])+'</span>';
+ $('#modalCard').innerHTML=sparks+'<div class="big">🎓</div><h3>¡Caso integrador completado!</h3><p>Recorriste el ciclo contable completo de Distribuidora “El Faro”: del registro de operaciones a los estados financieros.</p>'+
+ '<div class="czkpi" style="margin-top:12px"><div><b>'+pct+'%</b><small>Desempeño</small></div><div><b>'+starsOf(pct)+'★</b><small>Estrellas</small></div><div><b>'+CZ.fails+'</b><small>Errores</small></div></div>'+
+ '<br><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap"><button class="btn btn-verde" onclick="closeModal();bootedFix(\'caso\')">↻ Intentar nuevamente</button><button class="btn btn-ghost" onclick="closeModal();go(\'home\')">🏠 Inicio</button></div>';
+ $('#modalWrap').classList.add('show');evalBadges()};
+
+/* ================= BOOT ================= */
+window.bootedFix=function(id){booted[id]=false;go(id)};
+var INIT={aprende:APRE.init,clasifica:CLZ.init,cargoabono:CA.init,ecuacion:EQ.init,registro:RG.init,cuentast:T.init,balanza:BLZ.init,er:ER.init,esf:ESF.init,reto:RT.init,caso:CZ.init};
+window.INIT=INIT;window.booted=booted;
+window.EQ=EQ;window.CLZ=CLZ;window.CA=CA;window.RG=RG;window.BLZ=BLZ;window.ER=ER;window.ESF=ESF;window.RT=RT;window.CZ=CZ;
+
+$('#heroDate').textContent=new Date().toLocaleDateString('es-MX',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+renderHeader();renderMenu();renderBadges();
+countUp($('#hEqA'),0,1250000,1400);countUp($('#hEqP'),0,470000,1400);countUp($('#hEqC'),0,780000,1400);
+})();
+</script>
+</body>
+</html>
